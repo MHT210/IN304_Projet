@@ -14,16 +14,6 @@ struct image {
     struct pixel **P;
 };
 
-struct couples_points {
-    POINT G;
-    POINT D;
-};
-
-struct List_Points {
-    struct couples_points CP;
-    struct List_Points *suiv;
-};
-
 void write_image(char *nom, struct image I) {
     FILE *F;
     F = fopen(nom, "w");
@@ -96,19 +86,51 @@ void show_image(struct image I, int decalh) {
     }
 } 
 
-struct List_Points * get_coordinates_of_image(struct List_Points * Head, struct image I) {
+LISTE_POINTS * Get_Pixel_Couple(LISTE_POINTS * Head, struct image I, struct image I2) {
+    
+    POINT p1 = wait_clic();
+    POINT p2 = wait_clic();
+
+    // Vérifier si p1 est dans l'image de gauche
+    if ((p1.x <= I.largeur && p1.x >= 0) && (p1.y <= I.hauteur && p1.y >= 0)) {
+        // Vérifier si p2 est bien dans l'image de droite
+        if ((p2.x <= 1500 && p2.x >= (1500-I2.largeur)) && (p2.y <= I2.hauteur && p2.y >= 0)) {
+            Head = insert_first(Head, p1.x, p1.y, p2.x, p2.y);
+        } else {printf("choisir une autre image !\n");}
+        // Vérifier si p1 est dans l'image de droite
+    } else if ((p1.x <= 1500 && p1.x >= (1500-I2.largeur)) && (p1.y <= I2.hauteur && p1.y >= 0)) {
+        // Vérifier si p2 est bien dans l'image de gauche
+        if ((p2.x <= I.largeur && p2.x >= 0) && (p2.y <= I.hauteur && p2.y >= 0)) {
+            Head = insert_first(Head, p2.x, p2.y, p1.x, p1.y);
+        } else {printf("choisir une autre image !\n");}
+    } else {
+        printf("Le clic n'est pas dans une image !\n");
+    }
+    
     return Head;
 }
+
+// faire fonction qui prend le nombre de couples voulu en utilisant la fonction Get_Pixel_Couple()
+LISTE_POINTS * Create_Couples_of_Base_Points(LISTE_POINTS * Head, struct image I, struct image I2) {
+    
+    Head = Get_Pixel_Couple(Head, I, I2);
+    
+    return Head;
+}
+
 
 int main() {
     struct image I;
     struct image I2;
-    struct List_Points * Head;
+
+    LISTE_POINTS * Head;
+    Head = NULL;
 
     char nom[] = "chat_chien_1.ppm";
 
     I = read_image(nom, I);
     I2 = read_image("chat_chien_2.ppm", I2);
+
     write_image("chat_chien_remake.ppm", I);
     write_image("chat_chien_remake_2.ppm", I2);
 
@@ -117,10 +139,17 @@ int main() {
     show_image(I, 0);
     show_image(I2, (1500-I.largeur) + INTER_IMAGE);
 
-    Head = get_coordinates_of_image()
-
     affiche_all();
 
+    Head = Create_Couples_of_Base_Points(Head, I, I2);
+    print_list(Head);
     wait_escape();
+    
+    for (int i = 0; i < I.hauteur; i++) free(I.P[i]);
+    free(I.P);
+    
+    for (int i = 0; i < I2.hauteur; i++) free(I2.P[i]);
+    free(I2.P);
+
     exit(0);
 }
