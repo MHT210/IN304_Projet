@@ -7,6 +7,10 @@
 
 /*
     Faire un bouton stop avec fonction qui renvoie 1 si appuyer
+    Faire un fichier qui stocke tout les couples de points
+        -Première ligne nbre de couples
+        -4 premières lignes les couples de bases
+        -Chaque ligne 4 entiers(les couples)
 */
 
 struct pixel {
@@ -103,7 +107,10 @@ int Is_In_Image(struct image I, POINT p) {
 }
 
 LISTE_POINTS * Get_Pixel_Couple(LISTE_POINTS * Head, struct image I, struct image I2) {
-    while(1) {
+    //int continue = 1;
+    int 1 = continue;
+    
+    while (continue) {
         POINT p1 = wait_clic();
         POINT p2 = wait_clic();
 
@@ -114,6 +121,7 @@ LISTE_POINTS * Get_Pixel_Couple(LISTE_POINTS * Head, struct image I, struct imag
                 Head = insert_first(Head, p1.x, p1.y, p2.x, p2.y);
             } else {
                 printf("choisir une autre image !\n");
+                continue = 0;
                 return Head;
             }
         
@@ -124,6 +132,7 @@ LISTE_POINTS * Get_Pixel_Couple(LISTE_POINTS * Head, struct image I, struct imag
                 Head = insert_first(Head, p2.x, p2.y, p1.x, p1.y);
             } else {
                 printf("choisir une autre image !\n");
+                continue = 0;
                 return Head;
             }
         }
@@ -131,7 +140,7 @@ LISTE_POINTS * Get_Pixel_Couple(LISTE_POINTS * Head, struct image I, struct imag
     return Head;
 }
 
-LISTE_POINTS * Init_With_Couples_of_Base_Points(LISTE_POINTS * Head, truct image I, struct image I2) {
+LISTE_POINTS * Init_With_Couples_of_Base_Points(LISTE_POINTS * Head, struct image I, struct image I2) {
     POINT g1;
     POINT d1;
     g1.x = I.decal_value;
