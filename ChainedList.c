@@ -42,3 +42,11 @@ void print_list(LISTE_POINTS *list) {
 		list = list->suiv;
 	}
 }
+
+int length_of_list(LISTE_POINTS *list) {
+	int count = 0;
+	while (list) {
+		count += 1;
+		list = list->suiv;
+	}
+}

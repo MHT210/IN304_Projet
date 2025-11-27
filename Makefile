@@ -10,7 +10,6 @@ LDLIBS=`sdl2-config --libs` -lm -lSDL2_ttf
 % : %.c ChainedList.o uvsqgraphics_2.o
 	$(CC) $(CFLAGS) -o $@ $< ChainedList.o uvsqgraphics_2.o $(LDLIBS)
 
-
 run: morphing
 	./morphing
 

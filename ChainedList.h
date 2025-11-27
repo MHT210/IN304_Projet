@@ -21,4 +21,6 @@ LISTE_POINTS * insert_last(LISTE_POINTS *list, int x1, int y1, int x2, int y2);
 
 void print_list(LISTE_POINTS *list);
 
+int length_of_list(LISTE_POINTS *list); 
+
 #endif
