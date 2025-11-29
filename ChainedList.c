@@ -37,8 +37,8 @@ void print_list(LISTE_POINTS *list) {
 	while (list) {
 		count += 1;
 		printf("Couple numéro : %d\n", count);
-		printf("premier point GAUCHE : %d %d\n", list->CP.G.x, list->CP.G.y );
-		printf("deuxième point DROITE : %d %d\n", list->CP.D.x, list->CP.D.y );
+		printf("premier point GAUCHE : %d %d\n", list->CP.G.x, list->CP.G.y);
+		printf("deuxième point DROITE : %d %d\n", list->CP.D.x, list->CP.D.y);
 		list = list->suiv;
 	}
 }
@@ -49,4 +49,5 @@ int length_of_list(LISTE_POINTS *list) {
 		count += 1;
 		list = list->suiv;
 	}
+	return count;
 }

@@ -7,8 +7,8 @@ LDLIBS=`sdl2-config --libs` -lm -lSDL2_ttf
 # $^ : les noms des dépendances
 # $< : la première dépendance
 
-% : %.c ChainedList.o uvsqgraphics_2.o
-	$(CC) $(CFLAGS) -o $@ $< ChainedList.o uvsqgraphics_2.o $(LDLIBS)
+% : %.c ChainedList.o uvsqgraphics_2.o Button.o
+	$(CC) $(CFLAGS) -o $@ $< ChainedList.o uvsqgraphics_2.o Button.o $(LDLIBS)
 
 run: morphing
 	./morphing
@@ -22,13 +22,14 @@ all: demo0 demo1 demo2 demo3 demo4 horloge morphing
 	./horloge
 	./morphing
 
+Button.o: Button.c Button.h
+	$(CC) $(CFLAGS) -c Button.c -o Button.o
+
 ChainedList.o: ChainedList.c ChainedList.h
 	$(CC) $(CFLAGS) -c ChainedList.c -o ChainedList.o
 
-
 uvsqgraphics_2.o: uvsqgraphics_2.c uvsqgraphics_2.h uvsqcouleur_2.h 
 	$(CC) $(CFLAGS) -c uvsqgraphics_2.c -o uvsqgraphics_2.o
-
 
 .PHONY: clean
 clean:

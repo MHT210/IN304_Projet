@@ -1,5 +1,6 @@
 #include "uvsqgraphics_2.h"
 #include "ChainedList.h"
+#include "Button.h"
 
 extern void add_pix(int x, int y, COULEUR coul);
 extern void affiche_all_mode_CANVAS();
@@ -8,14 +9,6 @@ extern void affiche_all_mode_CANVAS();
 #define LARGEUR 1500
 #define HAUTEUR 900
 #define CIRCLE_RAYON 20
-
-/*
-    Faire un bouton stop avec fonction qui renvoie 1 si appuyer
-    Faire un fichier qui stocke tout les couples de points
-        -Première ligne nbre de couples
-        -4 premières lignes les couples de bases
-        -Chaque ligne 4 entiers(les couples)
-*/
 
 struct pixel {
     int R, G, B;
@@ -115,8 +108,23 @@ LISTE_POINTS * Get_Pixel_Couple(LISTE_POINTS * Head, struct image I, struct imag
     
     while (keepGoing) {
         POINT p1 = wait_clic();
-        POINT p2 = wait_clic();
 
+        // Vérifier si le clic est dans le bouton Stop
+        if (bouton_stop_cliquer(LARGEUR, HAUTEUR, p1)) {
+            printf("Couplage stopper\n");
+            keepGoing = 0;
+            SDL_Quit();
+            return Head;
+        }
+        POINT p2 = wait_clic();
+        
+        if (bouton_stop_cliquer(LARGEUR, HAUTEUR, p2)) {
+            printf("Couplage stopper\n");
+            keepGoing = 0;
+            SDL_Quit();
+            return Head;
+        }
+        
         // Vérifier si p1 est dans l'image de gauche
         if (Is_In_Image(I, p1)) {
             draw_circle(p1, CIRCLE_RAYON, redColor);
@@ -127,6 +135,7 @@ LISTE_POINTS * Get_Pixel_Couple(LISTE_POINTS * Head, struct image I, struct imag
             } else {
                 printf("choisir une autre image !\n");
                 keepGoing = 0;
+                SDL_Quit();
                 return Head;
             }
         
@@ -140,9 +149,15 @@ LISTE_POINTS * Get_Pixel_Couple(LISTE_POINTS * Head, struct image I, struct imag
             } else {
                 printf("choisir une autre image !\n");
                 keepGoing = 0;
+                SDL_Quit();
                 return Head;
             }
-        }
+        } else {
+                printf("choisir une autre image !\n");
+                keepGoing = 0;
+                SDL_Quit();
+                return Head;
+            }
     }
     return Head;
 }
@@ -198,8 +213,7 @@ LISTE_POINTS * Create_Couples_of_Points(LISTE_POINTS * Head, struct image I, str
     Head = Init_With_Couples_of_Base_Points(Head, I, I2);
 
     Head = Get_Pixel_Couple(Head, I, I2);
-    
-    Save_Point_Couples(Head);
+
     return Head;
 }
 
@@ -208,15 +222,17 @@ void Save_Point_Couples(LISTE_POINTS * Head) {
     FILE *F;
 
     F = fopen("Couples_de_points.ppm", "w");
-    if (!F) {perror("Pd de fichier"); exit(44);}
+    if (!F) {perror("fopen"); exit(1);}
 
     fprintf(F, "%d\n",length_of_list(Head));
     
     while (Head) {
-        fprintf(F, "%d %d  %d %d", Head->CP.G.x, Head->CP.G.y, 
+        fprintf(F, "%d %d  %d %d\n", Head->CP.G.x, Head->CP.G.y, 
             Head->CP.D.x, Head->CP.D.y);
         Head = Head->suiv;
     }
+
+    fclose(F);
 }
 
 void Read_Point_Couples(char *filename) {
@@ -278,11 +294,16 @@ int main() {
     init_graphics(LARGEUR, HAUTEUR);
     set_mode_CANVAS();
 
+    bouton_stop(LARGEUR, HAUTEUR);
+
     Show_Image(I);
     Show_Image(I2);
 
     Head = Create_Couples_of_Points(Head, I, I2);
+
+    Save_Point_Couples(Head);
     Read_Point_Couples("Couples_de_points.ppm");
+
     print_list(Head);
 
     wait_escape();
