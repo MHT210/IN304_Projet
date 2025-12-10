@@ -1,168 +1,87 @@
 #include "uvsqgraphics_2.h"
 #include "ChainedList.h"
 #include "Button.h"
-
-extern void add_pix(int x, int y, COULEUR coul);
-extern void affiche_all_mode_CANVAS();
+#include "ImageFunctions.h"
 
 #define INTER_IMAGE 950
 #define LARGEUR 1500
 #define HAUTEUR 900
 #define CIRCLE_RAYON 20
 
-struct pixel {
-    int R, G, B;
-};
-
-struct image {
-    int hauteur;
-    int largeur;
-    int max_value_rgb;
-    int decal_value;
-    struct pixel **P;
-};
-
-void Write_Image(char *nom, struct image I) {
-    FILE *F;
-    F = fopen(nom, "w");
-    if (!F) {perror("Pd de fichier"); exit(20);}
-
-    fprintf(F, "P3\n");
-    fprintf(F, "%d %d\n", I.largeur, I.hauteur);
-    fprintf(F, "%d\n", I.max_value_rgb);
-
-    for (int i=0; i < I.hauteur; i++) {
-        for (int j=0; j < I.largeur; j++) {
-            fprintf(F, "%d ", I.P[i][j].R);
-            fprintf(F, "%d ", I.P[i][j].G);
-            fprintf(F, "%d ", I.P[i][j].B);
-        }
-        fprintf(F, "\n");
-    }
-    
-    fclose(F);
+void Show_Images_On_Screen(IMAGE I, IMAGE I2) {
+    Show_Image(I);
+    Show_Image(I2);
 }
 
-struct image Read_Image(char *nom, struct image I) {
-    FILE *F;
-    F = fopen(nom, "r");
-    if (!F) {printf("Pb de fichier"); exit(20);}
-    
-    char c;
-    if (fscanf(F, "%c", &c) != 1) {fprintf(stderr,"erreur fichier"); exit(24);}
-    if (c != 'P') {fprintf(stderr,"erreur fichier"); exit(21);}
-    if (fscanf(F, "%c", &c) != 1) {fprintf(stderr,"erreur fichier"); exit(25);}
-    if (c != '3') {fprintf(stderr,"erreur fichier"); exit(22);}
-    if (fscanf(F, "%c", &c) != 1) {fprintf(stderr,"erreur fichier"); exit(26);};
-    if (c != '\n') {fprintf(stderr,"erreur fichier"); exit(23);}
-
-    if (fscanf(F, "%d", &(I.largeur)) != 1) {fprintf(stderr,"erreur fichier"); exit(27);}
-    if (fscanf(F, "%d", &(I.hauteur)) != 1) {fprintf(stderr,"erreur fichier"); exit(28);}
-    if (fscanf(F, "%d", &(I.max_value_rgb)) != 1) {fprintf(stderr,"erreur fichier"); exit(29);}
-    printf("%d, %d, %d \n", I.largeur, I.hauteur, I.max_value_rgb);
-
-    I.P = malloc(I.hauteur * sizeof(struct pixel *));
-    
-    int i,j;
-    for (i=0; i < I.hauteur; i++) I.P[i] = malloc(I.largeur * sizeof(struct pixel));
-
-    for (i=0; i < I.hauteur; i++) {
-        for (j=0; j < I.largeur; j++) {
-            if (fscanf(F, "%d", &(I.P[i][j].R)) != 1) {fprintf(stderr,"erreur fichier"); exit(21);}
-            if (fscanf(F, "%d", &(I.P[i][j].G)) != 1) {fprintf(stderr,"erreur fichier"); exit(21);}
-            if (fscanf(F, "%d", &(I.P[i][j].B)) != 1) {fprintf(stderr,"erreur fichier"); exit(21);}
-        }
+POINT get_click_or_stop() {
+    // Fonction qui retourne la position du point ou arrete le programme
+    POINT p = wait_clic();
+    if (bouton_stop_cliquer(LARGEUR, HAUTEUR, p)) {
+        printf("Couplage stopper\n");
+        SDL_Quit();
+        p.x = -1;
     }
-
-    fclose(F);
-
-    return I;
+    return p;
 }
 
-void Show_Image(struct image I) {
-    for (int y = 0; y < I.hauteur; y++) {
-        for (int x = 0; x < I.largeur; x++) {
-            COULEUR c = couleur_RGB(
-                I.P[y][x].R, 
-                I.P[y][x].G, 
-                I.P[y][x].B
-            );
-            add_pix(I.decal_value + x, y, c);
-        }
-    }
-    affiche_all_mode_CANVAS();
-}
-
-int Is_In_Image(struct image I, POINT p) {
-    if ((p.x >= I.decal_value && p.x <= I.largeur + I.decal_value) 
-    && (p.y >= 0 && p.y <= HAUTEUR)) {
+int check_clic_position(POINT p1, POINT p2, IMAGE I, IMAGE I2) {
+    // Vérifiez si p1 dans I et p2 dans I2
+    if (Is_In_Image(I, p1, HAUTEUR) && Is_In_Image(I2, p2, HAUTEUR))
         return 1;
-    } else {
-        return 0;
-    }
+
+    // Vérifiez si p1 dans I2 et p2 dans I
+    if (Is_In_Image(I2, p1, HAUTEUR) && Is_In_Image(I, p2, HAUTEUR))
+        return 2;
+
+    return 0;
 }
 
-LISTE_POINTS * Get_Pixel_Couple(LISTE_POINTS * Head, struct image I, struct image I2) {
-    int keepGoing = 1;
+void draw_circles_of_couple(POINT p1, POINT p2) {
     COULEUR redColor = couleur_RGB(255,0,0);
-    
-    while (keepGoing) {
-        POINT p1 = wait_clic();
-
-        // Vérifier si le clic est dans le bouton Stop
-        if (bouton_stop_cliquer(LARGEUR, HAUTEUR, p1)) {
-            printf("Couplage stopper\n");
-            keepGoing = 0;
-            SDL_Quit();
-            return Head;
-        }
-        POINT p2 = wait_clic();
-        
-        if (bouton_stop_cliquer(LARGEUR, HAUTEUR, p2)) {
-            printf("Couplage stopper\n");
-            keepGoing = 0;
-            SDL_Quit();
-            return Head;
-        }
-        
-        // Vérifier si p1 est dans l'image de gauche
-        if (Is_In_Image(I, p1)) {
-            draw_circle(p1, CIRCLE_RAYON, redColor);
-            // Vérifier si p2 est bien dans l'image de droite
-            if (Is_In_Image(I2, p2)) {
-                draw_circle(p2, CIRCLE_RAYON, redColor);
-                Head = insert_last(Head, p1.x, p1.y, p2.x, p2.y);
-            } else {
-                printf("choisir une autre image !\n");
-                keepGoing = 0;
-                SDL_Quit();
-                return Head;
-            }
-        
-        // Vérifier si p1 est dans l'image de droite
-        } else if (Is_In_Image(I2, p1)) {
-            draw_circle(p2, CIRCLE_RAYON, redColor);
-            // Vérifier si p2 est bien dans l'image de gauche
-            if (Is_In_Image(I, p2)) {
-                draw_circle(p1, CIRCLE_RAYON, redColor);
-                Head = insert_last(Head, p2.x, p2.y, p1.x, p1.y);
-            } else {
-                printf("choisir une autre image !\n");
-                keepGoing = 0;
-                SDL_Quit();
-                return Head;
-            }
-        } else {
-                printf("choisir une autre image !\n");
-                keepGoing = 0;
-                SDL_Quit();
-                return Head;
-            }
-    }
-    return Head;
+    draw_circle(p1, CIRCLE_RAYON, redColor);
+    draw_circle(p2, CIRCLE_RAYON, redColor);
 }
 
-LISTE_POINTS * Init_With_Couples_of_Base_Points(LISTE_POINTS * Head, struct image I, struct image I2) {
+LISTE_POINTS * Get_Pixel_Couple(LISTE_POINTS * Head, IMAGE I, IMAGE I2) {
+    int keepGoing = 1;
+
+    while (keepGoing) {
+        // Premier clic
+        POINT p1 = get_click_or_stop();
+        if (p1.x == -1) {
+            keepGoing = 0;
+            SDL_Quit();
+            return Head;
+        }
+
+        // Deuxième clic
+        POINT p2 = get_click_or_stop();
+        if (p2.x == -1) {
+            keepGoing = 0;
+            SDL_Quit();
+            return Head;
+        }
+
+        int result = check_clic_position(p1, p2, I, I2);
+
+        if (result == 1) {
+            draw_circles_of_couple(p1, p2);
+            Head = insert_last(Head, p1.x, p1.y, p2.x, p2.y);
+        }
+        else if (result == 2) {
+            draw_circles_of_couple(p2, p1);
+            Head = insert_last(Head, p2.x, p2.y, p1.x, p1.y);
+        }
+        else {  
+            printf("choisir une autre image !\n");
+            SDL_Quit();
+            keepGoing = 0;
+            return Head;
+        }
+    }
+}
+
+LISTE_POINTS * Init_With_Couples_of_Base_Points(LISTE_POINTS * Head, IMAGE I, IMAGE I2) {
     COULEUR redColor = couleur_RGB(255,0,0);
 
     POINT g1;
@@ -208,7 +127,7 @@ LISTE_POINTS * Init_With_Couples_of_Base_Points(LISTE_POINTS * Head, struct imag
     return Head;
 }
 
-LISTE_POINTS * Create_Couples_of_Points(LISTE_POINTS * Head, struct image I, struct image I2) {
+LISTE_POINTS * Create_Couples_of_Points(LISTE_POINTS * Head, IMAGE I, IMAGE I2) {
     // initialiser avec les couples de base
     Head = Init_With_Couples_of_Base_Points(Head, I, I2);
 
@@ -274,39 +193,28 @@ void Read_Point_Couples(char *filename) {
 }
 
 int main() {
-    struct image I;
-    struct image I2;
-
+    IMAGE I;
+    IMAGE I2;
+    I = Read_Image("chat_chien_1.ppm", I);
+    I2 = Read_Image("chat_chien_2.ppm", I2);
     I.decal_value = 0;
     I2.decal_value = INTER_IMAGE;
 
     LISTE_POINTS * Head;
     Head = NULL;
 
-    char nom[] = "chat_chien_1.ppm";
-
-    I = Read_Image(nom, I);
-    I2 = Read_Image("chat_chien_2.ppm", I2);
-
-    Write_Image("chat_chien_remake.ppm", I);
-    Write_Image("chat_chien_remake_2.ppm", I2);
-
     init_graphics(LARGEUR, HAUTEUR);
     set_mode_CANVAS();
 
     bouton_stop(LARGEUR, HAUTEUR);
-
-    Show_Image(I);
-    Show_Image(I2);
+    Show_Images_On_Screen(I, I2);
 
     Head = Create_Couples_of_Points(Head, I, I2);
-
     Save_Point_Couples(Head);
     Read_Point_Couples("Couples_de_points.ppm");
 
-    print_list(Head);
-
     wait_escape();
+
     for (int i = 0; i < I.hauteur; i++) free(I.P[i]);
     free(I.P);
     
