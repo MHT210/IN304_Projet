@@ -79,6 +79,7 @@ LISTE_POINTS * Get_Pixel_Couple(LISTE_POINTS * Head, IMAGE I, IMAGE I2) {
             return Head;
         }
     }
+    return Head;
 }
 
 LISTE_POINTS * Init_With_Couples_of_Base_Points(LISTE_POINTS * Head, IMAGE I, IMAGE I2) {
