@@ -32,6 +32,35 @@ LISTE_POINTS * insert_last(LISTE_POINTS *list, int x1, int y1, int x2, int y2) {
 	return list;
 }
 
+// La fonction SUPPRIME LE DERNIER de la liste
+LISTE_POINTS * delete_last(LISTE_POINTS * list) {
+	LISTE_POINTS * temp;
+	LISTE_POINTS * prev_temp;
+
+	temp = list; 
+
+	while (temp->suiv) {
+		prev_temp = temp;
+		temp = temp->suiv;
+	}
+
+	prev_temp->suiv = NULL;
+	free(temp);
+	return list;
+}
+
+// La fonction RETOURNE LES DERNIERS points dans la liste
+COUPLES_POINTS get_last_points(LISTE_POINTS * list) {
+	LISTE_POINTS * temp;
+	temp = list; 
+
+	while (temp->suiv) {
+		temp = temp->suiv;
+	}
+
+	return temp->CP;
+}
+
 void print_list(LISTE_POINTS *list) {
 	int count = 0;
 	while (list) {

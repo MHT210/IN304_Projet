@@ -19,6 +19,10 @@ LISTE_POINTS * insert_first(LISTE_POINTS *list, int x1, int y1, int x2, int y2);
 
 LISTE_POINTS * insert_last(LISTE_POINTS *list, int x1, int y1, int x2, int y2);
 
+LISTE_POINTS * delete_last(LISTE_POINTS * list);
+
+COUPLES_POINTS get_last_points(LISTE_POINTS * list);
+
 void print_list(LISTE_POINTS *list);
 
 int length_of_list(LISTE_POINTS *list); 

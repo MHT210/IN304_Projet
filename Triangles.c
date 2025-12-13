@@ -10,7 +10,7 @@ TRIANGLE_HEAD create_head_of_TRlist() {
     return TR_head;
 }
 
-TRIANGLE_HEAD create_triangle(TRIANGLE_HEAD TR_head, TRIANGLE TR_points) {
+TRIANGLE_HEAD add_triangle(TRIANGLE_HEAD TR_head, TRIANGLE TR_points) {
     ELEMENT *e;
 
     e = malloc(sizeof(ELEMENT));
