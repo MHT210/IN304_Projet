@@ -187,7 +187,7 @@ void Read_Point_Couples(char *filename) {
                i+1, x1, y1, x2, y2);
     }
     
-    printf("===============================\n\n");
+    printf("==================================================\n\n");
     
     fclose(F);
 }
