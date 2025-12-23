@@ -2,13 +2,13 @@
 #include <stdlib.h>
 #include "CouplesFunctions.h"
 
-POINT get_click_or_stop(BOUTON stop, BOUTON suppr) {
+POINT get_click_or_stop(BOUTON sauver, BOUTON suppr) {
     // Fonction qui retourne la position du point sinon arrete le programme si stop est cliqué
     POINT p = wait_clic();
-    if (bouton_cliquer(p, stop)) {
-        printf("Couplage stopper\n");
-        SDL_Quit();
+    if (bouton_cliquer(p, sauver)) {
+        printf("Couplage sauver\n");
         p.x = -1;
+        /* creation images intermediaires */
     } else if (bouton_cliquer(p, suppr)) {
         printf("suppression du dernier couples");
         p.y = -1;
@@ -33,31 +33,29 @@ void draw_circles_of_couple(POINT p1, POINT p2) {
     draw_circle(p2, CIRCLE_RAYON, RED);
 }
 
-LISTE_POINTS * Get_Pixel_Couple(LISTE_POINTS * Head, IMAGE I, IMAGE I2, BOUTON stop, BOUTON suppr) {
+LISTE_POINTS * Get_Pixel_Couple(LISTE_POINTS * Head, IMAGE I, IMAGE I2, BOUTON sauver, BOUTON suppr) {
     int keepGoing = 1;
 
     while (keepGoing) {
         // Premier clic
-        POINT p1 = get_click_or_stop(stop, suppr);
+        POINT p1 = get_click_or_stop(sauver, suppr);
         if (p1.x == -1) {
             keepGoing = 0;
-            SDL_Quit();
             return Head;
         } else if (p1.y == -1) { // appuie sur le bouton supprimer
             if (Head != NULL) {
                 draw_circle(get_last_points(Head).G, CIRCLE_RAYON, WHITE);
                 draw_circle(get_last_points(Head).D, CIRCLE_RAYON, WHITE);
                 Head = delete_last(Head);
-                Head = Get_Pixel_Couple(Head, I, I2, stop, suppr);
+                Head = Get_Pixel_Couple(Head, I, I2, sauver, suppr);
             }
             return Head;
         }
 
         // Deuxième clic
-        POINT p2 = get_click_or_stop(stop, suppr);
+        POINT p2 = get_click_or_stop(sauver, suppr);
         if (p2.x == -1) {
             keepGoing = 0;
-            SDL_Quit();
             return Head;
         }
 
@@ -127,11 +125,11 @@ LISTE_POINTS * Init_With_Couples_of_Base_Points(LISTE_POINTS * Head, IMAGE I, IM
     return Head;
 }
 
-LISTE_POINTS * Create_Couples_of_Points(LISTE_POINTS * Head, IMAGE I, IMAGE I2, BOUTON stop, BOUTON suppr) {
+LISTE_POINTS * Create_Couples_of_Points(LISTE_POINTS * Head, IMAGE I, IMAGE I2, BOUTON sauver, BOUTON suppr) {
     // initialiser avec les couples de base
     Head = Init_With_Couples_of_Base_Points(Head, I, I2);
 
-    Head = Get_Pixel_Couple(Head, I, I2, stop, suppr);
+    Head = Get_Pixel_Couple(Head, I, I2, sauver, suppr);
 
     return Head;
 }

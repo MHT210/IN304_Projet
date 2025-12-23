@@ -38,7 +38,8 @@ LISTE_POINTS * delete_last(LISTE_POINTS * list) {
 	LISTE_POINTS * prev_temp;
 
 	temp = list; 
-
+	prev_temp = list;
+	
 	while (temp->suiv) {
 		prev_temp = temp;
 		temp = temp->suiv;

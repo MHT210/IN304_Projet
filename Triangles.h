@@ -29,6 +29,8 @@ TRIANGLE_HEAD create_head_of_TRlist(); // creation de la structure qui va conten
 
 TRIANGLE_HEAD add_triangle(TRIANGLE_HEAD TR_head, TRIANGLE pointsGauche, TRIANGLE pointsDroit); // ajoute un triangle a la liste
 
+TRIANGLE in_triangle(TRIANGLE_HEAD TR_head, POINT p); // retourne le triangle dans laquelle est le point p
+
 void print_triangles(TRIANGLE_HEAD TR_head); // affiche la totalité des triangles avec la fonction precedente
 
 #endif

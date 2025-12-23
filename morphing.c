@@ -1,11 +1,11 @@
 #include "CouplesFunctions.h"
 #include "Triangles.h"
 #include "Button.h"
-
-/* Faire un bouton pour visualiser les triangles*/
+#include "uvsqgraphics_2.h"
 
 #define JAUNE couleur_RGB(255, 255, 0)
 #define ROUGE couleur_RGB(255, 0, 0)
+#define VERT couleur_RGB(0, 255, 100)
 
 void Show_Images_On_Screen(IMAGE I, IMAGE I2) {
     Show_Image(I);
@@ -55,17 +55,9 @@ COUPLES_POINTS first_user_couple(LISTE_POINTS * Head) {
     return couple;
 }
 
-TRIANGLE_HEAD Get_Triangles(TRIANGLE_HEAD TH, char *couples_file, LISTE_POINTS * Head) {
-    FILE *F;
+TRIANGLE_HEAD Get_First_Triangles(TRIANGLE_HEAD TH, LISTE_POINTS * Head) {
     COUPLES_POINTS couple;
     couple = first_user_couple(Head);
-
-    // Ouvrir le fichier pour recupérer les 4 premiers couples de base
-    F = fopen(couples_file, "r");
-    if (!F) {perror("Erreur ouverture fichier"); exit(1);}
-
-    int n;
-    if (fscanf(F, "%d", &n) != 1) {perror("Nombre max de couples pas trouver"); exit(1);}
 
     // Créer les triangles
     for (int i = 0; i <= 3; i+=3) {
@@ -89,12 +81,67 @@ TRIANGLE_HEAD Get_Triangles(TRIANGLE_HEAD TH, char *couples_file, LISTE_POINTS *
             couple_triangle.triangleGauche.P1 = couple.G;
             couple_triangle.triangleGauche.P2 = g1;
             couple_triangle.triangleGauche.P3 = g2;
+            draw_triangle(couple.G, g1, g2, VERT);
 
             couple_triangle.triangleDroit.P1 = couple.D;
             couple_triangle.triangleDroit.P2 = d1;
             couple_triangle.triangleDroit.P3 = d2;
+            draw_triangle(couple.D, d1, d2, VERT);
+
             TH = add_triangle(TH, couple_triangle.triangleGauche, couple_triangle.triangleDroit);
         }
+    }
+
+    return TH;
+}
+
+TRIANGLE_HEAD Get_Triangles(TRIANGLE_HEAD TH, LISTE_POINTS * Head) {
+    TH = Get_First_Triangles(TH, Head);
+    LISTE_POINTS *temp = Head;
+    
+    int i = 1;
+    while (temp) {
+        if (i > 5) {
+            TRIANGLE Tg;
+            TRIANGLE Td;
+            Tg = in_triangle(TH, temp->CP.G);
+            Td = in_triangle(TH, temp->CP.D);
+
+            COUPLE_TRIANGLE CT;
+            TRIANGLE Tg1 = {temp->CP.G, Tg.P1, Tg.P2};
+            CT.triangleGauche = Tg1;
+            draw_triangle(Tg1.P1, Tg1.P2, Tg1.P3, VERT);
+
+            TRIANGLE Td1 = {temp->CP.D, Td.P1, Td.P2};
+            CT.triangleDroit = Td1;
+            draw_triangle(Td1.P1, Td1.P2, Td1.P3, VERT);
+
+            TH = add_triangle(TH, CT.triangleGauche, CT.triangleDroit);
+
+            COUPLE_TRIANGLE CT2;
+            TRIANGLE Tg2 = {temp->CP.G, Tg.P2, Tg.P3};
+            CT2.triangleGauche = Tg2;
+            draw_triangle(Tg2.P1, Tg2.P2, Tg2.P3, VERT);
+
+            TRIANGLE Td2 = {temp->CP.D, Td.P2, Td.P3};
+            CT2.triangleDroit = Td2;
+            draw_triangle(Td2.P1, Td2.P2, Td2.P3, VERT);
+
+            TH = add_triangle(TH, CT2.triangleGauche, CT2.triangleDroit);
+
+            COUPLE_TRIANGLE CT3;
+            TRIANGLE Tg3 = {temp->CP.G, Tg.P1, Tg.P3};
+            CT3.triangleGauche = Tg3;
+            draw_triangle(Tg3.P1, Tg3.P2, Tg3.P3, VERT);
+
+            TRIANGLE Td3 = {temp->CP.D, Td.P1, Td.P3};
+            CT3.triangleDroit = Td3;
+            draw_triangle(Td3.P1, Td3.P2, Td3.P3, VERT);
+
+            TH = add_triangle(TH, CT3.triangleGauche, CT3.triangleDroit);
+        }
+        temp = temp->suiv;
+        i++;
     }
 
     return TH;
@@ -114,13 +161,13 @@ int main() {
     TH = create_head_of_TRlist();
 
     // Declaration du struct BOUTON
-    BOUTON stop;
-    stop.nom = "Sauver et quitter";
-    stop.largeur = 150;
-    stop.hauteur = 40;
-    stop.x = 800;
-    stop.y = 450;
-    stop.couleur = JAUNE;
+    BOUTON sauver;
+    sauver.nom = "Sauver";
+    sauver.largeur = 150;
+    sauver.hauteur = 40;
+    sauver.x = 800;
+    sauver.y = 450;
+    sauver.couleur = JAUNE;
     BOUTON suppr;
     suppr.nom = "Supprimer dernier couple";
     suppr.largeur = 200;
@@ -138,17 +185,17 @@ int main() {
     // initialisation de la fenetre avec ses composantes(images, boutons...)
     init_graphics(LARGEUR, HAUTEUR);
     set_mode_CANVAS();
-    creer_bouton(stop);
+    creer_bouton(sauver);
     creer_bouton(suppr);
     Show_Images_On_Screen(I, I2);
 
     // Appel des fonctions pour les listes
-    Head = Create_Couples_of_Points(Head, I, I2, stop, suppr);
+    Head = Create_Couples_of_Points(Head, I, I2, sauver, suppr);
     Save_Point_Couples(Head);
     Read_Point_Couples("Couples_de_points.ppm");
 
     // Appel des fonctions triangulation
-    TH = Get_Triangles(TH, "Couples_de_points.ppm", Head);
+    TH = Get_Triangles(TH, Head);
     print_triangles(TH);
 
     //Fin du main
