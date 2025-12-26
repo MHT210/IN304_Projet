@@ -7,20 +7,26 @@ LDLIBS=`sdl2-config --libs` -lm -lSDL2_ttf
 # $^ : les noms des dépendances
 # $< : la première dépendance
 
-% : %.c ChainedList.o uvsqgraphics_2.o Button.o ImageFunctions.o Triangles.o CouplesFunctions.o
-	$(CC) $(CFLAGS) -o $@ $< ChainedList.o uvsqgraphics_2.o Button.o ImageFunctions.o Triangles.o CouplesFunctions.o $(LDLIBS)
+% : %.c ChainedList.o uvsqgraphics_2.o Button.o ImageFunctions.o Triangles.o CouplesFunctions.o Triangulate.o morphing.o
+	$(CC) $(CFLAGS) -o $@ $< ChainedList.o uvsqgraphics_2.o Button.o ImageFunctions.o Triangles.o CouplesFunctions.o Triangulate.o morphing.o $(LDLIBS)
 
-run: morphing
-	./morphing
+run: main
+	./main
 
-all: demo0 demo1 demo2 demo3 demo4 horloge morphing
+all: demo0 demo1 demo2 demo3 demo4 horloge main
 	./demo0
 	./demo1
 	./demo2
 	./demo3
 	./demo4
 	./horloge
-	./morphing
+	./main
+
+morphing.o: morphing.c morphing.h
+	$(CC) $(CFLAGS) -c morphing.c -o morphing.o
+
+Triangulate.o: Triangulate.c Triangulate.h
+	$(CC) $(CFLAGS) -c Triangulate.c -o Triangulate.o
 
 CouplesFunctions.o: CouplesFunctions.c CouplesFunctions.h
 	$(CC) $(CFLAGS) -c CouplesFunctions.c -o CouplesFunctions.o
@@ -49,7 +55,7 @@ clean:
 	rm -f demo2
 	rm -f demo3
 	rm -f demo4
-	rm -f morphing
+	rm -f main
 	rm -f horloge
 	rm -f morpion
 

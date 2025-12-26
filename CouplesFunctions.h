@@ -14,7 +14,7 @@
 #define WHITE couleur_RGB(255,255,255)
 #define RED couleur_RGB(255,0,0)
 
-LISTE_POINTS * Create_Couples_of_Points(LISTE_POINTS * Head, IMAGE I, IMAGE I2, BOUTON stop, BOUTON suppr);
+LISTE_POINTS * Create_Couples_of_Points(LISTE_POINTS * Head, IMAGE I, IMAGE I2, BOUTON stop, BOUTON suppr, BOUTON quitter);
 
 void Save_Point_Couples(LISTE_POINTS * Head);
 

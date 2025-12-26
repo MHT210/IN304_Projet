@@ -2,15 +2,18 @@
 #include <stdlib.h>
 #include "CouplesFunctions.h"
 
-POINT get_click_or_stop(BOUTON sauver, BOUTON suppr) {
+POINT get_click_or_stop(BOUTON trianguler, BOUTON suppr, BOUTON quitter) {
     // Fonction qui retourne la position du point sinon arrete le programme si stop est cliqué
     POINT p = wait_clic();
-    if (bouton_cliquer(p, sauver)) {
-        printf("Couplage sauver\n");
+    if (bouton_cliquer(p, trianguler)) {
+        printf("Couplage trianguler\n");
         p.x = -1;
         /* creation images intermediaires */
     } else if (bouton_cliquer(p, suppr)) {
         printf("suppression du dernier couples");
+        p.y = -1;
+    } else if (bouton_cliquer(p, quitter)) {
+        p.x = -1;
         p.y = -1;
     }
     return p;
@@ -33,13 +36,17 @@ void draw_circles_of_couple(POINT p1, POINT p2) {
     draw_circle(p2, CIRCLE_RAYON, RED);
 }
 
-LISTE_POINTS * Get_Pixel_Couple(LISTE_POINTS * Head, IMAGE I, IMAGE I2, BOUTON sauver, BOUTON suppr) {
+LISTE_POINTS * Get_Pixel_Couple(LISTE_POINTS * Head, IMAGE I, IMAGE I2, BOUTON trianguler, BOUTON suppr, BOUTON quitter) {
     int keepGoing = 1;
 
     while (keepGoing) {
         // Premier clic
-        POINT p1 = get_click_or_stop(sauver, suppr);
-        if (p1.x == -1) {
+        POINT p1 = get_click_or_stop(trianguler, suppr, quitter);
+        if (p1.x == -1 && p1.y == -1) {
+            SDL_Quit();
+            keepGoing = 0;
+            return Head;
+        } else if (p1.x == -1) {
             keepGoing = 0;
             return Head;
         } else if (p1.y == -1) { // appuie sur le bouton supprimer
@@ -47,14 +54,18 @@ LISTE_POINTS * Get_Pixel_Couple(LISTE_POINTS * Head, IMAGE I, IMAGE I2, BOUTON s
                 draw_circle(get_last_points(Head).G, CIRCLE_RAYON, WHITE);
                 draw_circle(get_last_points(Head).D, CIRCLE_RAYON, WHITE);
                 Head = delete_last(Head);
-                Head = Get_Pixel_Couple(Head, I, I2, sauver, suppr);
-            }
-            return Head;
+                Head = Get_Pixel_Couple(Head, I, I2, trianguler, suppr, quitter);
+            } else {perror("Il ne reste plus de points a supprimer"); exit(1);}
+            return Head; // changer de place pour eviter segmentation fault ?
         }
 
         // Deuxième clic
-        POINT p2 = get_click_or_stop(sauver, suppr);
-        if (p2.x == -1) {
+        POINT p2 = get_click_or_stop(trianguler, suppr, quitter);
+        if (p2.x == -1 && p2.y == -1) {
+            SDL_Quit();
+            keepGoing = 0;
+            return Head;
+        } else if (p2.x == -1) {
             keepGoing = 0;
             return Head;
         }
@@ -125,11 +136,11 @@ LISTE_POINTS * Init_With_Couples_of_Base_Points(LISTE_POINTS * Head, IMAGE I, IM
     return Head;
 }
 
-LISTE_POINTS * Create_Couples_of_Points(LISTE_POINTS * Head, IMAGE I, IMAGE I2, BOUTON sauver, BOUTON suppr) {
+LISTE_POINTS * Create_Couples_of_Points(LISTE_POINTS * Head, IMAGE I, IMAGE I2, BOUTON trianguler, BOUTON suppr, BOUTON quitter) {
     // initialiser avec les couples de base
     Head = Init_With_Couples_of_Base_Points(Head, I, I2);
 
-    Head = Get_Pixel_Couple(Head, I, I2, sauver, suppr);
+    Head = Get_Pixel_Couple(Head, I, I2, trianguler, suppr, quitter);
 
     return Head;
 }
