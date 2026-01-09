@@ -3,6 +3,7 @@
 #include "Button.h"
 #include "Triangulate.h"
 #include "ImageFunctions.h"
+#include "morphing.h"
 #include "uvsqgraphics_2.h"
 
 void Show_Images_On_Screen(IMAGE I, IMAGE I2) {
@@ -14,6 +15,7 @@ int main() {
     // Declaration des struct IMAGE
     IMAGE I;
     IMAGE I2;
+    IMAGE I3;
 
     // Declaration du struct LISTE_POINTS
     LISTE_POINTS * Head;
@@ -22,6 +24,18 @@ int main() {
     // Declaration du struct TRIANGLE_HEAD
     TRIANGLE_HEAD TH;
     TH = create_head_of_TRlist();
+    TRIANGLE_HEAD TH_D;
+    TH_D = create_head_of_TRlist();
+    TRIANGLE_HEAD TH_A;
+    TH_A = create_head_of_TRlist();
+
+    // Declaration du struct POINTS_INT
+    POINTS_INT * Head_I;
+    Head_I = NULL;
+    POINTS_INT * Head_D;
+    Head_D = NULL;
+    POINTS_INT * Head_A;
+    Head_A = NULL;
 
     // Declaration du struct BOUTON
     BOUTON trianguler;
@@ -65,9 +79,20 @@ int main() {
     Save_Point_Couples(Head);
     Read_Point_Couples("Couples_de_points.ppm");
 
+    // Appel des fonctions pour les points de bases intermediaires
+    Head_I = getIntPoints(Head_I, Head, 0.5);
+    Head_D = getIntPoints(Head_D, Head, 0);
+    Head_A = getIntPoints(Head_A, Head, 1);
+
     // Appel des fonctions triangulation
-    TH = Get_Triangles(TH, Head);
+    TH = Get_Triangles(TH, Head_I);
+    TH_D = Get_Triangles(TH_D, Head_D);
+    TH_A = Get_Triangles(TH_A, Head_A);
     print_triangles(TH);
+
+    morphing(TH, TH_D, TH_A, 0.5, I, I2, I3);
+
+    Write_Image("frame_00.ppm", I3);
 
     // A la fin attendre un clic sur le bouton quitter
     int keepgoing = 1;

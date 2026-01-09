@@ -9,7 +9,8 @@
 #include "uvsqgraphics_2.h"
 #include "CouplesFunctions.h"
 #include "Triangles.h"
+#include "morphing.h"
 
-TRIANGLE_HEAD Get_Triangles(TRIANGLE_HEAD TH, LISTE_POINTS * Head);
+TRIANGLE_HEAD Get_Triangles(TRIANGLE_HEAD TH, POINTS_INT * Head);
 
 #endif
