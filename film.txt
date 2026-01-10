@@ -1,0 +1,7 @@
+    
+Film (si ffmpeg est installé) {
+    sprintf(nom, "ffmpeg -y -framerate 15 -i Images/img%%04d.ppm -c:v libx264 -pix_fmt yuv420p toto.mp4");
+    system(nom);
+
+    return EXIT_SUCCESS;
+}

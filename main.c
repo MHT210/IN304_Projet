@@ -81,8 +81,8 @@ int main() {
 
     // Appel des fonctions pour les points de bases intermediaires
     Head_I = getIntPoints(Head_I, Head, 0.5);
-    Head_D = getIntPoints(Head_D, Head, 0);
-    Head_A = getIntPoints(Head_A, Head, 1);
+    Head_D = CreateHeadList(Head, Head_D, 1);
+    Head_A = CreateHeadList(Head, Head_A, 2);
 
     // Appel des fonctions triangulation
     TH = Get_Triangles(TH, Head_I);

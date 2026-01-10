@@ -102,3 +102,20 @@ TRIANGLE_HEAD Get_Triangles(TRIANGLE_HEAD TH, POINTS_INT * Head) {
 
     return TH;
 }
+
+POINTS_INT * CreateHeadList(LISTE_POINTS * HeadCouple, POINTS_INT * Head, int cote) {
+    LISTE_POINTS *temp = HeadCouple;
+
+    while (temp) {
+        if (cote == 1) {
+            Head = insert_last_i(Head, temp->CP.G.x, temp->CP.G.y);
+            temp = temp->suiv;
+        }
+        if (cote == 2) {
+            Head = insert_last_i(Head, temp->CP.D.x, temp->CP.D.y);
+            temp = temp->suiv;
+        }
+    }
+
+    return Head;
+}

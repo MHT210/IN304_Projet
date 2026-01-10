@@ -28,53 +28,6 @@ POINTS_INT * getIntPoints(POINTS_INT * list_I, LISTE_POINTS * listD_G, float alp
     return list_I;
 }
 
-// Fonction pour lire un pixel avec interpolation bilinéaire
-PIXEL interpoler_pixel(IMAGE img, float x, float y) {
-    PIXEL result = {0, 0, 0};
-    
-    // Clamping
-    if (x < 0) x = 0;
-    if (x >= img.largeur - 1) x = img.largeur - 1.001;
-    if (y < 0) y = 0;
-    if (y >= img.hauteur - 1) y = img.hauteur - 1.001;
-    
-    int x0 = (int)floor(x);
-    int y0 = (int)floor(y);
-    int x1 = x0 + 1;
-    int y1 = y0 + 1;
-    
-    float fx = x - x0;
-    float fy = y - y0;
-    
-    // Vérification supplémentaire
-    if (x1 >= img.largeur) x1 = img.largeur - 1;
-    if (y1 >= img.hauteur) y1 = img.hauteur - 1;
-    
-    // Interpolation bilinéaire
-    result.R = (int)(
-        (1-fx) * (1-fy) * img.P[y0][x0].R +
-        fx * (1-fy) * img.P[y0][x1].R +
-        (1-fx) * fy * img.P[y1][x0].R +
-        fx * fy * img.P[y1][x1].R
-    );
-    
-    result.G = (int)(
-        (1-fx) * (1-fy) * img.P[y0][x0].G +
-        fx * (1-fy) * img.P[y0][x1].G +
-        (1-fx) * fy * img.P[y1][x0].G +
-        fx * fy * img.P[y1][x1].G
-    );
-    
-    result.B = (int)(
-        (1-fx) * (1-fy) * img.P[y0][x0].B +
-        fx * (1-fy) * img.P[y0][x1].B +
-        (1-fx) * fy * img.P[y1][x0].B +
-        fx * fy * img.P[y1][x1].B
-    );
-    
-    return result;
-}
-
 void barycentricCoordinates(POINT A, POINT B, POINT C, POINT p, float *lambda, float *mu) {
     POINT AB = {B.x - A.x, B.y - A.y};
     POINT AC = {C.x - A.x, C.y - A.y};
@@ -109,86 +62,91 @@ IMAGE morphing(TRIANGLE_HEAD TH_I, TRIANGLE_HEAD TH_D, TRIANGLE_HEAD TH_A, float
     int k = 1;
     int pixelparcouru = 0;
     int pixeldansimage3 = 0;
+    int pixeldansimage1_2 = 0;
     for (int y=0; y < 900; y++) {
         for (int x=0; x < 1550; x++) {
-            int keepGoing = 1;
+            POINT P = {x, y};
+            pixelparcouru++;
             ELEMENT *eI = TH_I.head;
-            ELEMENT *eD = TH_D.head;
-            ELEMENT *eA = TH_A.head;
-            while (eI && eD && eA && keepGoing) {
-                POINT P = {x, y};
-                // draw_circle(P, 15, couleur_RGB(255, 0, 255));
-                pixelparcouru++;
+            int triangle_index = 0;
+            int found_triangle = 0;
+            
+            while (eI && !found_triangle) {
+                if (PointInTriangle(eI->triangle, P)) {
+                    found_triangle = 1;
+                } else {
+                    triangle_index++;
+                    eI = eI->next;
+                }
+            }
+            
+            if (found_triangle) {
                 float lambda, mu;
-
                 POINT A = eI->triangle.P1;
                 POINT B = eI->triangle.P2;
                 POINT C = eI->triangle.P3;
-
+                barycentricCoordinates(A, B, C, P, &lambda, &mu);
+                
+                ELEMENT *eD = TH_D.head;
+                for (int i = 0; i < triangle_index; i++) {
+                    eD = eD->next;
+                }
+                
+                ELEMENT *eA = TH_A.head;
+                for (int i = 0; i < triangle_index; i++) {
+                    eA = eA->next;
+                }
+                
                 POINT Ad = eD->triangle.P1;
                 POINT Bd = eD->triangle.P2;
                 POINT Cd = eD->triangle.P3;
-
+                
+                int Pd_x = Ad.x + lambda * (Bd.x - Ad.x) + mu * (Cd.x - Ad.x);
+                int Pd_y = Ad.y + lambda * (Bd.y - Ad.y) + mu * (Cd.y - Ad.y);
+                POINT Pd = {Pd_x, Pd_y};
+                
                 POINT Aa = eA->triangle.P1;
                 POINT Ba = eA->triangle.P2;
                 POINT Ca = eA->triangle.P3;
-                if (lambda < 0.0f && mu < 0.0f && (lambda + mu) > 1.0f) {printf("P pas dans image !");}
-                barycentricCoordinates(A, B, C, P, &lambda, &mu);
-                if (lambda >= 0.0f && mu >= 0.0f && (lambda + mu) <= 1.0f) {
-                    pixeldansimage3++;
-                    float Pd_x = Ad.x + lambda * (Bd.x - Ad.x) + mu * (Cd.x - Ad.x);
-                    float Pd_y = Ad.y + lambda * (Bd.y - Ad.y) + mu * (Cd.y - Ad.y);
+                
+                int Pa_x = Aa.x + lambda * (Ba.x - Aa.x) + mu * (Ca.x - Aa.x);
+                int Pa_y = Aa.y + lambda * (Ba.y - Aa.y) + mu * (Ca.y - Aa.y);
+                POINT Pa = {Pa_x, Pa_y};
+                POINT Pa_dans_image = {Pa_x - 950, Pa_y};
+                pixeldansimage3++;
 
-                    float Pa_x = Aa.x + lambda * (Ba.x - Aa.x) + mu * (Ca.x - Aa.x);
-                    float Pa_y = Aa.y + lambda * (Ba.y - Aa.y) + mu * (Ca.y - Aa.y);
+                if (InImageMorph(I, Pd) && InImageMorph(I2, Pa_dans_image)) {
+                    pixeldansimage1_2++;
+                    if (Pd.y >= 0 && Pd.y < I.hauteur && Pd.x >= 0 && Pd.x < I.largeur &&
+                        Pa_dans_image.y >= 0 && Pa_dans_image.y < I2.hauteur && 
+                        Pa_dans_image.x >= 0 && Pa_dans_image.x < I2.largeur) {
 
-                    // CLAMPING : Forcer dans les limites
-                    int pd_x = (int)round(Pd_x);
-                    int pd_y = (int)round(Pd_y);
-                    int pa_x = (int)round(Pa_x);
-                    int pa_y = (int)round(Pa_y);
-
-                    // Clipper aux bornes de l'image
-                    pd_x = (pd_x < 0) ? 0 : (pd_x >= I.largeur) ? I.largeur - 1 : pd_x;
-                    pd_y = (pd_y < 0) ? 0 : (pd_y >= I.hauteur) ? I.hauteur - 1 : pd_y;
-                    pa_x = (pa_x < 0) ? 0 : (pa_x >= I2.largeur) ? I2.largeur - 1 : pa_x;
-                    pa_y = (pa_y < 0) ? 0 : (pa_y >= I2.hauteur) ? I2.hauteur - 1 : pa_y;
-
-                    POINT Pd = {pd_x, pd_y};
-                    // draw_circle(Pd, 15, couleur_RGB(0, 255, 255));
-
-                    POINT Pa = {pa_x, pa_y};
-                    // draw_circle(Pa, 15, couleur_RGB(255, 255, 0)); 
-
-                    if (!InImageMorph(I, Pd)) {printf("Pd pas dans image !\n");}
-                    if (!InImageMorph(I2, Pa)) {printf("Pa pas dans image !\n");}
-                    
-                    if (InImageMorph(I, Pd) && InImageMorph(I2, Pa)) {
-                        int INT_red = (1-alpha) * I.P[(int)Pd.y][(int)Pd.x].R + alpha * I2.P[(int)Pa.y][(int)Pa.x].R;
-                        int INT_green = (1-alpha) * I.P[(int)Pd.y][(int)Pd.x].G + alpha * I2.P[(int)Pa.y][(int)Pa.x].G;
-                        int INT_blue = (1-alpha) * I.P[(int)Pd.y][(int)Pd.x].B + alpha * I2.P[(int)Pa.y][(int)Pa.x].B;
+                        printf("Accès I.P[%d][%d] (max: %d x %d)\n", Pd.y, Pd.x, I.hauteur, I.largeur);
+                        printf("Accès I2.P[%d][%d] (max: %d x %d)\n", Pa_dans_image.y, Pa_dans_image.x, I2.hauteur, I2.largeur);
+                        int INT_red = (1-alpha) * I.P[Pd.y][Pd.x].R + alpha * I2.P[Pa.y][Pa.x].R;
+                        int INT_green = (1-alpha) * I.P[Pd.y][Pd.x].G + alpha * I2.P[Pa.y][Pa.x].G;
+                        int INT_blue = (1-alpha) * I.P[Pd.y][Pd.x].B + alpha * I2.P[Pa.y][Pa.x].B;
+                        
                         I3.P[y][x].R = INT_red;
                         I3.P[y][x].G = INT_green;
                         I3.P[y][x].B = INT_blue;
-                        k++;
-                        fprintf(F, "%d ", I3.P[y][x].R);
-                        fprintf(F, "%d ", I3.P[y][x].G);
-                        fprintf(F, "%d ", I3.P[y][x].B);
+                        
+                        fprintf(F, "%d %d %d ", INT_red, INT_green, INT_blue);
                         if (k/8 == 1) {
-                            fprintf(F, "\n");
-                            k = 1;
+                                    fprintf(F, "\n");
+                                    k = 1;
                         }
+                    } else {
+                        printf("ERREUR: Pd=(%d,%d) Pa=(%d,%d) hors limites!\n", 
+                            Pd.x, Pd.y, Pa_dans_image.x, Pa_dans_image.y);
                     }
-                    keepGoing = 0;
                 }
-                eI = eI->next;
-                eD = eD->next;
-                eA = eA->next;
             }
         }
     }
     printf("\n pixel parcouru : %d \n", pixelparcouru);
     printf("\n pixel dans image I3 : %d \n", pixeldansimage3);
+    printf("\n pixel dans image I et I2 : %d \n", pixeldansimage1_2);
     fclose(F);
     return I3;
 }

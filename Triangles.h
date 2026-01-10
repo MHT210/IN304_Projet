@@ -32,4 +32,6 @@ void print_triangles(TRIANGLE_HEAD TR_head); // affiche la totalité des triangl
 
 int deter(POINT a, POINT b);
 
+int PointInTriangle(TRIANGLE triangle, POINT p);
+
 #endif

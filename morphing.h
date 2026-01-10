@@ -19,4 +19,6 @@ IMAGE morphing(TRIANGLE_HEAD TH_I, TRIANGLE_HEAD TH_D, TRIANGLE_HEAD TH_A, float
 
 void test_I3(IMAGE I3);
 
+POINTS_INT * insert_last_i(POINTS_INT * list_I, int x, int y);
+
 #endif

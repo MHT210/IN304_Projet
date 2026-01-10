@@ -1,7 +1,4 @@
 #include <stdio.h>
-#include "morphing_types.h"
-#include "lire_ecrire.h"
-#include "afficher.h"
 
 void affiche_tab(Tab_point t){
     /*Affiche les valeurs contenues dans t*/

@@ -38,21 +38,28 @@ int compareTriangles(TRIANGLE T1, TRIANGLE T2) {
 
 TRIANGLE_HEAD del_triangle(TRIANGLE_HEAD TR_head, TRIANGLE T) {
     ELEMENT * e = TR_head.head;
-	ELEMENT * prev_e = e;
+    ELEMENT * prev_e = NULL;  // ← NULL au lieu de e
 
-	while (!compareTriangles(e->triangle, T)) {
-		prev_e = e;
-		e = e->next;
-	}
+    // Chercher le triangle
+    while (e && !compareTriangles(e->triangle, T)) {
+        prev_e = e;
+        e = e->next;
+    }
 
-	if (compareTriangles(e->triangle, T)) {
-		prev_e->next = e->next;
-		free(e);
-	}
-	
-    (TR_head.length)--;
+    // Si trouvé
+    if (e) {
+        if (prev_e == NULL) {
+            // C'est le premier élément
+            TR_head.head = e->next;
+        } else {
+            // C'est un élément quelconque
+            prev_e->next = e->next;
+        }
+        free(e);
+        (TR_head.length)--;
+    }
 
-	return TR_head;
+    return TR_head;
 }
 
 int deter(POINT a, POINT b) { /* calcul du determinant pour savoir si on a bien un triangle */
@@ -90,6 +97,29 @@ TRIANGLE in_triangle(TRIANGLE_HEAD TR_head, POINT p) {
         e = e->next;
     }
     return TNull;
+}
+
+int PointInTriangle(TRIANGLE triangle, POINT p) {
+    POINT A = triangle.P1;
+    POINT B = triangle.P2;
+    POINT C = triangle.P3;
+
+    /* Vecteurs triangle gauche : */
+    POINT AB = {B.x - A.x, B.y - A.y};
+    POINT AC = {C.x - A.x, C.y - A.y};
+    POINT AP = {p.x - A.x, p.y - A.y};
+
+    if (deter(AB, AC) == 0) {return 0;}
+
+    float beta = (float)deter(AP, AC) / deter(AB, AC);
+    float gamma = (float)deter(AB, AP) / deter(AB, AC);
+
+    /* Verifier les conditions barycentrique */
+    if (beta >= 0 && gamma >= 0 && beta + gamma <= 1) {
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 // affiche les points des triangles

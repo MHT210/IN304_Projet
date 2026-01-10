@@ -13,4 +13,6 @@
 
 TRIANGLE_HEAD Get_Triangles(TRIANGLE_HEAD TH, POINTS_INT * Head);
 
+POINTS_INT * CreateHeadList(LISTE_POINTS * HeadCouple, POINTS_INT * Head, int cote);
+
 #endif
