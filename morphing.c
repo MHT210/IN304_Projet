@@ -48,8 +48,8 @@ IMAGE morphing(TRIANGLE_HEAD TH_I, TRIANGLE_HEAD TH_D, TRIANGLE_HEAD TH_A, float
     F = fopen("frame_00.ppm", "w");
     if (!F) {perror("Pd de fichier"); exit(20);}
 
+    I3.largeur = (int)fmax(I.largeur, I2.largeur + I2.decal_value);
     I3.hauteur = (int)fmax(I.hauteur, I2.hauteur);
-    I3.largeur = (int)fmax(I.largeur, I2.largeur);
     I3.max_value_rgb = 255;
     I3.decal_value = 0;
 
@@ -59,10 +59,12 @@ IMAGE morphing(TRIANGLE_HEAD TH_I, TRIANGLE_HEAD TH_D, TRIANGLE_HEAD TH_A, float
 
     I3.P = malloc(I3.hauteur * sizeof(PIXEL *));
     for (int i=0; i < I3.hauteur; i++) I3.P[i] = malloc(I3.largeur * sizeof(PIXEL));
+
     int k = 1;
     int pixelparcouru = 0;
     int pixeldansimage3 = 0;
     int pixeldansimage1_2 = 0;
+
     for (int y=0; y < 900; y++) {
         for (int x=0; x < 1550; x++) {
             POINT P = {x, y};
@@ -112,7 +114,7 @@ IMAGE morphing(TRIANGLE_HEAD TH_I, TRIANGLE_HEAD TH_D, TRIANGLE_HEAD TH_A, float
                 int Pa_x = Aa.x + lambda * (Ba.x - Aa.x) + mu * (Ca.x - Aa.x);
                 int Pa_y = Aa.y + lambda * (Ba.y - Aa.y) + mu * (Ca.y - Aa.y);
                 POINT Pa = {Pa_x, Pa_y};
-                POINT Pa_dans_image = {Pa_x - 950, Pa_y};
+                POINT Pa_dans_image = {Pa_x - I2.decal_value, Pa_y};
                 pixeldansimage3++;
 
                 if (InImageMorph(I, Pd) && InImageMorph(I2, Pa_dans_image)) {
@@ -121,17 +123,19 @@ IMAGE morphing(TRIANGLE_HEAD TH_I, TRIANGLE_HEAD TH_D, TRIANGLE_HEAD TH_A, float
                         Pa_dans_image.y >= 0 && Pa_dans_image.y < I2.hauteur && 
                         Pa_dans_image.x >= 0 && Pa_dans_image.x < I2.largeur) {
 
-                        printf("Accès I.P[%d][%d] (max: %d x %d)\n", Pd.y, Pd.x, I.hauteur, I.largeur);
-                        printf("Accès I2.P[%d][%d] (max: %d x %d)\n", Pa_dans_image.y, Pa_dans_image.x, I2.hauteur, I2.largeur);
-                        int INT_red = (1-alpha) * I.P[Pd.y][Pd.x].R + alpha * I2.P[Pa.y][Pa.x].R;
-                        int INT_green = (1-alpha) * I.P[Pd.y][Pd.x].G + alpha * I2.P[Pa.y][Pa.x].G;
-                        int INT_blue = (1-alpha) * I.P[Pd.y][Pd.x].B + alpha * I2.P[Pa.y][Pa.x].B;
-                        
+                        int INT_red = (1-alpha) * I.P[Pd.y][Pd.x].R + alpha * I2.P[Pa.y][Pa_dans_image.x].R;
+                        int INT_green = (1-alpha) * I.P[Pd.y][Pd.x].G + alpha * I2.P[Pa.y][Pa_dans_image.x].G;
+                        int INT_blue = (1-alpha) * I.P[Pd.y][Pd.x].B + alpha * I2.P[Pa.y][Pa_dans_image.x].B;
+                        if (y >= I3.hauteur || x >= I3.largeur) {
+                            printf("ERREUR: Tentative d'écrire dans I3.P[%d][%d] mais I3 fait %d x %d\n", 
+                                y, x, I3.hauteur, I3.largeur);
+                            exit(1);
+                        }
                         I3.P[y][x].R = INT_red;
                         I3.P[y][x].G = INT_green;
                         I3.P[y][x].B = INT_blue;
-                        
-                        fprintf(F, "%d %d %d ", INT_red, INT_green, INT_blue);
+                        k++;
+                        fprintf(F, "%d %d %d ", I3.P[y][x].R, I3.P[y][x].G, I3.P[y][x].B);
                         if (k/8 == 1) {
                                     fprintf(F, "\n");
                                     k = 1;
