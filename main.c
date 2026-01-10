@@ -86,8 +86,8 @@ int main() {
     Head_A = CreateHeadList(Head, Head_A, 2);
 
     // Appel des fonctions triangulation
-    TH_D = Get_Triangles(TH_D, Head_D);
-    TH_A = Get_Triangles(TH_A, Head_A);
+    TH_D = Get_Triangles(TH_D, Head_D, 1);
+    TH_A = Get_Triangles(TH_A, Head_A, 1);
     print_triangles(TH);
 
     for (float alpha = 0.0f; alpha<=1.0f; alpha = alpha + 0.01f) {
@@ -96,7 +96,7 @@ int main() {
         Head_I = getIntPoints(Head_I, Head, alpha);
         free_list_TH(TH.head);
         TH = create_head_of_TRlist();
-        TH = Get_Triangles(TH, Head_I);
+        TH = Get_Triangles(TH, Head_I, 0);
         Images = morphing(Head_I, Images, TH, TH_D, TH_A, alpha, I, I2, I3);
     }
     int i = 0;
@@ -129,6 +129,9 @@ int main() {
     }
     //Fin du main
     wait_escape();
+
+    free_list(Head_I);
+    free_list_TH(TH.head);
 
     for (int i = 0; i < I.hauteur; i++) free(I.P[i]);
     free(I.P);

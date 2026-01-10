@@ -37,7 +37,7 @@ POINT first_user_point(POINTS_INT * Head) {
     return P1;
 }
 
-TRIANGLE_HEAD Get_First_Triangles(TRIANGLE_HEAD TH, POINTS_INT * Head) {
+TRIANGLE_HEAD Get_First_Triangles(TRIANGLE_HEAD TH, POINTS_INT * Head, int draw) {
     POINT p1 = first_user_point(Head);
 
     // Créer les triangles
@@ -58,7 +58,7 @@ TRIANGLE_HEAD Get_First_Triangles(TRIANGLE_HEAD TH, POINTS_INT * Head) {
             T.P1 = p1;
             T.P2 = p2;
             T.P3 = p3;
-            draw_triangle(p1, p2, p3, VERT);
+            if (draw) {draw_triangle(p1, p2, p3, VERT);}
 
             TH = add_triangle(TH, T);
         }
@@ -67,24 +67,24 @@ TRIANGLE_HEAD Get_First_Triangles(TRIANGLE_HEAD TH, POINTS_INT * Head) {
     return TH;
 }
 
-TRIANGLE_HEAD create_3_triangles(TRIANGLE_HEAD TH, TRIANGLE T, POINTS_INT * temp) {
+TRIANGLE_HEAD create_3_triangles(TRIANGLE_HEAD TH, TRIANGLE T, POINTS_INT * temp, int draw) {
     TRIANGLE T1 = {temp->P, T.P1, T.P2};
-    draw_triangle(T1.P1, T1.P2, T1.P3, VERT);
+    if (draw) {draw_triangle(T1.P1, T1.P2, T1.P3, VERT);}
     TH = add_triangle(TH, T1);
 
     TRIANGLE T2 = {temp->P, T.P2, T.P3};
-    draw_triangle(T2.P1, T2.P2, T2.P3, VERT);
+    if (draw) {draw_triangle(T2.P1, T2.P2, T2.P3, VERT);}
     TH = add_triangle(TH, T2);
 
     TRIANGLE T3 = {temp->P, T.P1, T.P3};
-    draw_triangle(T3.P1, T3.P2, T3.P3, VERT);
+    if (draw) {draw_triangle(T3.P1, T3.P2, T3.P3, VERT);}
     TH = add_triangle(TH, T3);
 
     return TH;
 }
 
-TRIANGLE_HEAD Get_Triangles(TRIANGLE_HEAD TH, POINTS_INT * Head) {
-    TH = Get_First_Triangles(TH, Head);
+TRIANGLE_HEAD Get_Triangles(TRIANGLE_HEAD TH, POINTS_INT * Head, int draw) {
+    TH = Get_First_Triangles(TH, Head, draw);
     POINTS_INT *temp = Head;
     
     int i = 1;
@@ -93,7 +93,7 @@ TRIANGLE_HEAD Get_Triangles(TRIANGLE_HEAD TH, POINTS_INT * Head) {
             TRIANGLE T;
             T = in_triangle(TH, temp->P);
 
-            TH = create_3_triangles(TH, T, temp);
+            TH = create_3_triangles(TH, T, temp, draw);
             TH = del_triangle(TH, T);
         }
         temp = temp->suiv;

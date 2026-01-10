@@ -11,7 +11,7 @@
 #include "Triangles.h"
 #include "morphing.h"
 
-TRIANGLE_HEAD Get_Triangles(TRIANGLE_HEAD TH, POINTS_INT * Head);
+TRIANGLE_HEAD Get_Triangles(TRIANGLE_HEAD TH, POINTS_INT * Head, int draw);
 
 POINTS_INT * CreateHeadList(LISTE_POINTS * HeadCouple, POINTS_INT * Head, int cote);
 
