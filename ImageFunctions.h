@@ -16,6 +16,11 @@ typedef struct image {
     PIXEL **P;
 } IMAGE;
 
+typedef struct Image_Inter {
+    IMAGE image;
+    struct Image_Inter * suiv;
+} IMAGE_INTER;
+
 // Les fonctions pour les images : //
 void Write_Image(char *nom, IMAGE I);
 
@@ -24,5 +29,7 @@ IMAGE Read_Image(char *nom, IMAGE I);
 int Is_In_Image(IMAGE I, POINT p, int HEIGHT_OF_SDL);
 
 void Show_Image(IMAGE I);
+
+IMAGE_INTER * InsertLastImage(IMAGE_INTER * Images, IMAGE image);
 
 #endif

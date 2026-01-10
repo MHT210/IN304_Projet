@@ -15,6 +15,17 @@ POINTS_INT * insert_last_i(POINTS_INT * list_I, int x, int y) {
 	return list_I;
 }
 
+void free_list(POINTS_INT *head) {
+    POINTS_INT *current = head;
+    POINTS_INT *next;
+    
+    while (current != NULL) {
+        next = current->suiv;
+        free(current);
+        current = next;
+    }
+}
+
 POINTS_INT * getIntPoints(POINTS_INT * list_I, LISTE_POINTS * listD_G, float alpha) {
     LISTE_POINTS * temp = listD_G;
 
@@ -43,30 +54,25 @@ int InImageMorph(IMAGE I, POINT p) {
     return (p.x >= 0 && p.x < I.largeur && p.y >= 0 && p.y < I.hauteur);
 }
 
-IMAGE morphing(TRIANGLE_HEAD TH_I, TRIANGLE_HEAD TH_D, TRIANGLE_HEAD TH_A, float alpha, IMAGE I, IMAGE I2, IMAGE I3) {
-    FILE *F;
-    F = fopen("frame_00.ppm", "w");
-    if (!F) {perror("Pd de fichier"); exit(20);}
+IMAGE_INTER * morphing(POINTS_INT * Head_I, IMAGE_INTER * Images, TRIANGLE_HEAD TH_I, TRIANGLE_HEAD TH_D, TRIANGLE_HEAD TH_A, float alpha, IMAGE I, IMAGE I2, IMAGE I3) {
+    int xInf = Head_I->P.x;
+    int xSup = Head_I->suiv->P.x;
+    int ySup = Head_I->suiv->suiv->P.y;
 
-    I3.largeur = (int)fmax(I.largeur, I2.largeur + I2.decal_value);
-    I3.hauteur = (int)fmax(I.hauteur, I2.hauteur);
+    I3.largeur = abs(xSup - xInf);
+    I3.hauteur = ySup;
     I3.max_value_rgb = 255;
     I3.decal_value = 0;
-
-    fprintf(F, "P3\n");
-    fprintf(F, "%d %d\n", I3.largeur, I3.hauteur);
-    fprintf(F, "%d\n", I3.max_value_rgb);
 
     I3.P = malloc(I3.hauteur * sizeof(PIXEL *));
     for (int i=0; i < I3.hauteur; i++) I3.P[i] = malloc(I3.largeur * sizeof(PIXEL));
 
-    int k = 1;
     int pixelparcouru = 0;
     int pixeldansimage3 = 0;
     int pixeldansimage1_2 = 0;
 
-    for (int y=0; y < 900; y++) {
-        for (int x=0; x < 1550; x++) {
+    for (int y=0; y < I3.hauteur; y++) {
+        for (int x = xInf; x <= xSup; x++) {
             POINT P = {x, y};
             pixelparcouru++;
             ELEMENT *eI = TH_I.head;
@@ -126,19 +132,13 @@ IMAGE morphing(TRIANGLE_HEAD TH_I, TRIANGLE_HEAD TH_D, TRIANGLE_HEAD TH_A, float
                         int INT_red = (1-alpha) * I.P[Pd.y][Pd.x].R + alpha * I2.P[Pa.y][Pa_dans_image.x].R;
                         int INT_green = (1-alpha) * I.P[Pd.y][Pd.x].G + alpha * I2.P[Pa.y][Pa_dans_image.x].G;
                         int INT_blue = (1-alpha) * I.P[Pd.y][Pd.x].B + alpha * I2.P[Pa.y][Pa_dans_image.x].B;
-                        if (y >= I3.hauteur || x >= I3.largeur) {
-                            printf("ERREUR: Tentative d'écrire dans I3.P[%d][%d] mais I3 fait %d x %d\n", 
-                                y, x, I3.hauteur, I3.largeur);
-                            exit(1);
-                        }
-                        I3.P[y][x].R = INT_red;
-                        I3.P[y][x].G = INT_green;
-                        I3.P[y][x].B = INT_blue;
-                        k++;
-                        fprintf(F, "%d %d %d ", I3.P[y][x].R, I3.P[y][x].G, I3.P[y][x].B);
-                        if (k/8 == 1) {
-                                    fprintf(F, "\n");
-                                    k = 1;
+                        if (x <= xSup && x >= xInf && y < I3.hauteur) {
+                            I3.P[y][x - xInf].R = INT_red;
+                            I3.P[y][x - xInf].G = INT_green;
+                            I3.P[y][x - xInf].B = INT_blue;
+                        } else {
+                            printf("ERREUR: P=(%d,%d hors limites!\n", 
+                            x, y);
                         }
                     } else {
                         printf("ERREUR: Pd=(%d,%d) Pa=(%d,%d) hors limites!\n", 
@@ -151,6 +151,6 @@ IMAGE morphing(TRIANGLE_HEAD TH_I, TRIANGLE_HEAD TH_D, TRIANGLE_HEAD TH_A, float
     printf("\n pixel parcouru : %d \n", pixelparcouru);
     printf("\n pixel dans image I3 : %d \n", pixeldansimage3);
     printf("\n pixel dans image I et I2 : %d \n", pixeldansimage1_2);
-    fclose(F);
-    return I3;
+    Images = InsertLastImage(Images, I3);
+    return Images;
 }

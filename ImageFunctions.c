@@ -5,6 +5,12 @@
 extern void add_pix(int x, int y, COULEUR coul);
 extern void affiche_all_mode_CANVAS();
 
+int clamp(int value, int min, int max) {
+    if (value < min) return min;
+    if (value > max) return max;
+    return value;
+}
+
 void Write_Image(char *nom, IMAGE I) {
     FILE *F;
     F = fopen(nom, "w");
@@ -16,9 +22,12 @@ void Write_Image(char *nom, IMAGE I) {
 
     for (int i=0; i < I.hauteur; i++) {
         for (int j=0; j < I.largeur; j++) {
-            fprintf(F, "%d ", I.P[i][j].R);
-            fprintf(F, "%d ", I.P[i][j].G);
-            fprintf(F, "%d ", I.P[i][j].B);
+            int r = I.P[i][j].R;
+            int g = I.P[i][j].G;
+            int b = I.P[i][j].B;
+            fprintf(F, "%d ", clamp(r, 0, 255));
+            fprintf(F, "%d ", clamp(g, 0, 255));
+            fprintf(F, "%d ", clamp(b, 0, 255));
         }
         fprintf(F, "\n");
     }
@@ -83,6 +92,19 @@ int Is_In_Image(IMAGE I, POINT p, int HEIGHT_OF_SDL) {
     } else {
         return 0;
     }
+}
+
+IMAGE_INTER * InsertLastImage(IMAGE_INTER * Images, IMAGE image) {
+    if (!Images) {
+		IMAGE_INTER * last_image = malloc(sizeof(IMAGE_INTER));
+		if (!last_image) {fprintf(stderr, "pb malloc\n"); exit(12);}
+		last_image->image = image;
+		last_image->suiv = NULL;
+		return last_image;
+	}
+	
+	Images->suiv = InsertLastImage(Images->suiv, image);
+	return Images;
 }
 
 

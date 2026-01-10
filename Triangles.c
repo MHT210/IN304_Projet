@@ -10,6 +10,17 @@ TRIANGLE_HEAD create_head_of_TRlist() {
     return TR_head;
 }
 
+void free_list_TH(ELEMENT *head) {
+    ELEMENT *current = head;
+    ELEMENT *next;
+    
+    while (current != NULL) {
+        next = current->next;
+        free(current);
+        current = next;
+    }
+}
+
 TRIANGLE_HEAD add_triangle(TRIANGLE_HEAD TR_head, TRIANGLE T) {
     ELEMENT *e;
 

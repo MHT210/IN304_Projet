@@ -7,6 +7,8 @@
 #include "CouplesFunctions.h"
 #include "math.h"
 #include "uvsqgraphics_2.h"
+#include "stdlib.h"
+#include "math.h"
 
 typedef struct POINTS_INT {
     POINT P;
@@ -15,10 +17,12 @@ typedef struct POINTS_INT {
 
 POINTS_INT * getIntPoints(POINTS_INT * list_I, LISTE_POINTS * listD_G, float alpha);
 
-IMAGE morphing(TRIANGLE_HEAD TH_I, TRIANGLE_HEAD TH_D, TRIANGLE_HEAD TH_A, float alpha, IMAGE I, IMAGE I2, IMAGE I3);
+IMAGE_INTER * morphing(POINTS_INT * Head_I, IMAGE_INTER * Images, TRIANGLE_HEAD TH_I, TRIANGLE_HEAD TH_D, TRIANGLE_HEAD TH_A, float alpha, IMAGE I, IMAGE I2, IMAGE I3);
 
 void test_I3(IMAGE I3);
 
 POINTS_INT * insert_last_i(POINTS_INT * list_I, int x, int y);
+
+void free_list(POINTS_INT *head);
 
 #endif

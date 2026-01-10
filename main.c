@@ -16,6 +16,8 @@ int main() {
     IMAGE I;
     IMAGE I2;
     IMAGE I3;
+    IMAGE_INTER * Images;
+    Images = NULL;
 
     // Declaration du struct LISTE_POINTS
     LISTE_POINTS * Head;
@@ -80,21 +82,42 @@ int main() {
     Read_Point_Couples("Couples_de_points.ppm");
 
     // Appel des fonctions pour les points de bases intermediaires
-    Head_I = getIntPoints(Head_I, Head, 0.5);
     Head_D = CreateHeadList(Head, Head_D, 1);
     Head_A = CreateHeadList(Head, Head_A, 2);
 
     // Appel des fonctions triangulation
-    TH = Get_Triangles(TH, Head_I);
     TH_D = Get_Triangles(TH_D, Head_D);
     TH_A = Get_Triangles(TH_A, Head_A);
     print_triangles(TH);
 
-    I3 = morphing(TH, TH_D, TH_A, 0.5, I, I2, I3);
+    for (float alpha = 0.0f; alpha<=1.0f; alpha = alpha + 0.01f) {
+        free_list(Head_I);
+        Head_I = NULL;
+        Head_I = getIntPoints(Head_I, Head, alpha);
+        free_list_TH(TH.head);
+        TH = create_head_of_TRlist();
+        TH = Get_Triangles(TH, Head_I);
+        Images = morphing(Head_I, Images, TH, TH_D, TH_A, alpha, I, I2, I3);
+    }
+    int i = 0;
+    while (Images) {
+        char filename[256];
+        sprintf(filename, "FRAMES/frame_%02d.ppm", i);
+        Write_Image(filename, Images->image);
+        Images = Images->suiv;
+        i++;
+    }
 
-    set_mode_CANVAS();
-    Show_Image(I3);
+    printf("Génération de la vidéo...\n");
+    int result = system("ffmpeg -y -framerate 10 -i FRAMES/frame_%02d.ppm "
+                    "-vf \"scale='trunc(iw/2)*2:trunc(ih/2)*2'\" "
+                    "-c:v libx264 -pix_fmt yuv420p morphing.mp4");
 
+    if (result == 0) {
+        printf("Vidéo créée avec succès : morphing.mp4\n");
+    } else {
+        fprintf(stderr, "Erreur lors de la création de la vidéo\n");
+    }
     // A la fin attendre un clic sur le bouton quitter
     int keepgoing = 1;
     while (keepgoing == 1) {

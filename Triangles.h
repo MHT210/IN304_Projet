@@ -34,4 +34,6 @@ int deter(POINT a, POINT b);
 
 int PointInTriangle(TRIANGLE triangle, POINT p);
 
+void free_list_TH(ELEMENT *head);
+
 #endif
