@@ -90,9 +90,10 @@ int main() {
     TH_A = Get_Triangles(TH_A, Head_A);
     print_triangles(TH);
 
-    morphing(TH, TH_D, TH_A, 0.5, I, I2, I3);
+    I3 = morphing(TH, TH_D, TH_A, 0.5, I, I2, I3);
 
-    Write_Image("frame_00.ppm", I3);
+    set_mode_CANVAS();
+    Show_Image(I3);
 
     // A la fin attendre un clic sur le bouton quitter
     int keepgoing = 1;

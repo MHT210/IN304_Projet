@@ -8,7 +8,7 @@
 #include "CouplesFunctions.h"
 
 #define INTER_IMAGE 950
-#define LARGEUR 1500
+#define LARGEUR 1550
 #define HAUTEUR 900
 #define CIRCLE_RAYON 10
 #define WHITE couleur_RGB(255,255,255)
