@@ -59,13 +59,23 @@ IMAGE_INTER * morphing(POINTS_INT * Head_I, IMAGE_INTER * Images, TRIANGLE_HEAD 
     int xSup = Head_I->suiv->P.x;
     int ySup = Head_I->suiv->suiv->P.y;
 
-    I3.largeur = abs(xSup - xInf);
+    I3.largeur = abs(xSup - xInf) + 1;
     I3.hauteur = ySup;
     I3.max_value_rgb = 255;
     I3.decal_value = 0;
 
-    I3.P = malloc(I3.hauteur * sizeof(PIXEL *));
-    for (int i=0; i < I3.hauteur; i++) I3.P[i] = malloc(I3.largeur * sizeof(PIXEL));
+    I3.P = calloc(I3.hauteur, sizeof(PIXEL *));
+    if (!I3.P) {fprintf(stderr, "Erreur allocation I3.P\n"); exit(1);}
+
+    for (int i=0; i < I3.hauteur; i++) {
+        I3.P[i] = calloc(I3.largeur, sizeof(PIXEL));
+        if (!I3.P[i]) {
+            fprintf(stderr, "Erreur allocation I3.P[%d]\n", i);
+            for (int j=0; j < i; j++) free(I3.P[j]);
+            free(I3.P);
+            exit(1);
+        }
+    }
 
     int pixelparcouru = 0;
     int pixeldansimage3 = 0;
@@ -89,7 +99,8 @@ IMAGE_INTER * morphing(POINTS_INT * Head_I, IMAGE_INTER * Images, TRIANGLE_HEAD 
             }
             
             if (found_triangle) {
-                float lambda, mu;
+                float lambda = 0.0f;
+                float mu = 0.0f;
                 POINT A = eI->triangle.P1;
                 POINT B = eI->triangle.P2;
                 POINT C = eI->triangle.P3;
@@ -129,16 +140,17 @@ IMAGE_INTER * morphing(POINTS_INT * Head_I, IMAGE_INTER * Images, TRIANGLE_HEAD 
                         Pa_dans_image.y >= 0 && Pa_dans_image.y < I2.hauteur && 
                         Pa_dans_image.x >= 0 && Pa_dans_image.x < I2.largeur) {
 
-                        int INT_red = (1-alpha) * I.P[Pd.y][Pd.x].R + alpha * I2.P[Pa.y][Pa_dans_image.x].R;
-                        int INT_green = (1-alpha) * I.P[Pd.y][Pd.x].G + alpha * I2.P[Pa.y][Pa_dans_image.x].G;
-                        int INT_blue = (1-alpha) * I.P[Pd.y][Pd.x].B + alpha * I2.P[Pa.y][Pa_dans_image.x].B;
-                        if (x <= xSup && x >= xInf && y < I3.hauteur) {
-                            I3.P[y][x - xInf].R = INT_red;
-                            I3.P[y][x - xInf].G = INT_green;
-                            I3.P[y][x - xInf].B = INT_blue;
+                        int INT_red = (1-alpha) * I.P[Pd.y][Pd.x].R + alpha * I2.P[Pa_dans_image.y][Pa_dans_image.x].R;
+                        int INT_green = (1-alpha) * I.P[Pd.y][Pd.x].G + alpha * I2.P[Pa_dans_image.y][Pa_dans_image.x].G;
+                        int INT_blue = (1-alpha) * I.P[Pd.y][Pd.x].B + alpha * I2.P[Pa_dans_image.y][Pa_dans_image.x].B;
+
+                        int idx_x = x - xInf;
+                        if (idx_x >= 0 && idx_x < I3.largeur && y >= 0 && y < I3.hauteur) {
+                            I3.P[y][idx_x].R = INT_red;
+                            I3.P[y][idx_x].G = INT_green;
+                            I3.P[y][idx_x].B = INT_blue;
                         } else {
-                            printf("ERREUR: P=(%d,%d hors limites!\n", 
-                            x, y);
+                            printf("ERREUR: P=(%d,%d hors limites!\n", x, y);
                         }
                     } else {
                         printf("ERREUR: Pd=(%d,%d) Pa=(%d,%d) hors limites!\n", 

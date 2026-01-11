@@ -97,6 +97,7 @@ int main() {
         free_list_TH(TH.head);
         TH = create_head_of_TRlist();
         TH = Get_Triangles(TH, Head_I, 0);
+        if (TH.length != TH_D.length && TH.length != TH_A.length) {perror("Probleme dans la triangulation"); exit(2);}
         Images = morphing(Head_I, Images, TH, TH_D, TH_A, alpha, I, I2, I3);
     }
     int i = 0;
@@ -138,6 +139,14 @@ int main() {
     
     for (int i = 0; i < I2.hauteur; i++) free(I2.P[i]);
     free(I2.P);
+
+    while (Images) {
+        IMAGE_INTER * next = Images->suiv;
+        for (int i = 0; i < Images->image.hauteur; i++) free(Images->image.P[i]);
+        free(Images->image.P);
+        free(Images);
+        Images = next;
+    }
 
     exit(0);
 }

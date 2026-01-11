@@ -49,21 +49,17 @@ int compareTriangles(TRIANGLE T1, TRIANGLE T2) {
 
 TRIANGLE_HEAD del_triangle(TRIANGLE_HEAD TR_head, TRIANGLE T) {
     ELEMENT * e = TR_head.head;
-    ELEMENT * prev_e = NULL;  // ← NULL au lieu de e
+    ELEMENT * prev_e = NULL;
 
-    // Chercher le triangle
     while (e && !compareTriangles(e->triangle, T)) {
         prev_e = e;
         e = e->next;
     }
 
-    // Si trouvé
     if (e) {
         if (prev_e == NULL) {
-            // C'est le premier élément
             TR_head.head = e->next;
         } else {
-            // C'est un élément quelconque
             prev_e->next = e->next;
         }
         free(e);

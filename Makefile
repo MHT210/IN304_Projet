@@ -13,6 +13,9 @@ LDLIBS=`sdl2-config --libs` -lm -lSDL2_ttf
 run: main
 	./main
 
+valgrind: main
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./main
+
 all: demo0 demo1 demo2 demo3 demo4 horloge main
 	./demo0
 	./demo1
