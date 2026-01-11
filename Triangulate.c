@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "Triangulate.h"
 
-POINTS_INT * Find_Node(POINTS_INT * head, int i) {
+POINTS_INT * Find_Node(POINTS_INT * head, int i) { // Cherche la liste POINTS_INT(points intermediaires) et renvoie le ième noeud
     POINTS_INT * temp = head;
     int j = 0;
     while (temp) {
@@ -16,14 +16,13 @@ POINTS_INT * Find_Node(POINTS_INT * head, int i) {
     return head;
 }
 
-POINT first_user_point(POINTS_INT * Head) {
+POINT first_user_point(POINTS_INT * Head) { // Fonction qui prend le premier point créer par l'utilisateur
     POINTS_INT * temp;
     POINT P1;
 
     temp = Head;
     int i = 1;
 
-    // Prendre le premier point créer par l'utilisateur
     while (temp) {
         if (i == 5) {
             P1.x = temp->P.x;
@@ -37,7 +36,7 @@ POINT first_user_point(POINTS_INT * Head) {
     return P1;
 }
 
-TRIANGLE_HEAD Get_First_Triangles(TRIANGLE_HEAD TH, POINTS_INT * Head, int draw) {
+TRIANGLE_HEAD Get_First_Triangles(TRIANGLE_HEAD TH, POINTS_INT * Head, int draw) { // Fonction qui créer les 4 premiers triangles
     POINT p1 = first_user_point(Head);
 
     // Créer les triangles
@@ -67,7 +66,7 @@ TRIANGLE_HEAD Get_First_Triangles(TRIANGLE_HEAD TH, POINTS_INT * Head, int draw)
     return TH;
 }
 
-TRIANGLE_HEAD create_3_triangles(TRIANGLE_HEAD TH, TRIANGLE T, POINTS_INT * temp, int draw) {
+TRIANGLE_HEAD create_3_triangles(TRIANGLE_HEAD TH, TRIANGLE T, POINTS_INT * temp, int draw) { // Fonction qui créer les 3 triangles
     TRIANGLE T1 = {temp->P, T.P1, T.P2};
     if (draw) {draw_triangle(T1.P1, T1.P2, T1.P3, VERT);}
     TH = add_triangle(TH, T1);
@@ -83,12 +82,12 @@ TRIANGLE_HEAD create_3_triangles(TRIANGLE_HEAD TH, TRIANGLE T, POINTS_INT * temp
     return TH;
 }
 
-TRIANGLE_HEAD Get_Triangles(TRIANGLE_HEAD TH, POINTS_INT * Head, int draw) {
-    TH = Get_First_Triangles(TH, Head, draw);
+TRIANGLE_HEAD Get_Triangles(TRIANGLE_HEAD TH, POINTS_INT * Head, int draw) { // Fonction principale qui regroupe les precedentes fonction
+    TH = Get_First_Triangles(TH, Head, draw); // 4 premiers triangles en premier
     POINTS_INT *temp = Head;
     
     int i = 1;
-    while (temp) {
+    while (temp) { // boucle qui parcours les points intermediaires pour créer les triangles
         if (i > 5) {
             TRIANGLE T;
             T = in_triangle(TH, temp->P);
@@ -103,7 +102,7 @@ TRIANGLE_HEAD Get_Triangles(TRIANGLE_HEAD TH, POINTS_INT * Head, int draw) {
     return TH;
 }
 
-POINTS_INT * CreateHeadList(LISTE_POINTS * HeadCouple, POINTS_INT * Head, int cote) {
+POINTS_INT * CreateHeadList(LISTE_POINTS * HeadCouple, POINTS_INT * Head, int cote) { // Fonction alternative pour les couples de points qui créer les triangles des images de depart et d'arriver pour le visuel
     LISTE_POINTS *temp = HeadCouple;
 
     while (temp) {

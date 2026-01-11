@@ -4,16 +4,16 @@
 #include "uvsqgraphics_2.h"
 
 //Les structures :
-typedef struct triangle{
+typedef struct triangle{ // structure qui stock les points d'un triangle
     POINT P1, P2, P3;
 } TRIANGLE;
 
-typedef struct element_node {
+typedef struct element_node { // structure de liste chainée qui reunit tout les triangles
     struct triangle triangle;
     struct element_node *next;
 } ELEMENT;
 
-typedef struct the_triangles {
+typedef struct the_triangles { // structure de tête pour garder le nombre de triangle et le premier triangle de la liste chainée
     int length;
     struct element_node *head;
 } TRIANGLE_HEAD;

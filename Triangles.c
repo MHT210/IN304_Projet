@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "Triangles.h"
 
-TRIANGLE_HEAD create_head_of_TRlist() {
+TRIANGLE_HEAD create_head_of_TRlist() { // Création de la structure qui sera la tete de la liste chainée des triangles
     TRIANGLE_HEAD TR_head;
 
     TR_head.length = 0;
@@ -10,7 +10,7 @@ TRIANGLE_HEAD create_head_of_TRlist() {
     return TR_head;
 }
 
-void free_list_TH(ELEMENT *head) {
+void free_list_TH(ELEMENT *head) { // libère toute la liste chainée
     ELEMENT *current = head;
     ELEMENT *next;
     
@@ -22,7 +22,7 @@ void free_list_TH(ELEMENT *head) {
 }
 
 TRIANGLE_HEAD add_triangle(TRIANGLE_HEAD TR_head, TRIANGLE T) {
-    ELEMENT *e;
+    ELEMENT *e; // ajoute un triangle a la liste chainée
 
     e = malloc(sizeof(ELEMENT));
     if (!e) exit(5);
@@ -36,7 +36,7 @@ TRIANGLE_HEAD add_triangle(TRIANGLE_HEAD TR_head, TRIANGLE T) {
     return TR_head;
 }
 
-int compareTriangles(TRIANGLE T1, TRIANGLE T2) {
+int compareTriangles(TRIANGLE T1, TRIANGLE T2) { // compare les points de deux triangles
     if (T1.P1.x == T2.P1.x && T1.P1.y == T2.P1.y
     && T1.P2.x == T2.P2.x && T1.P2.y == T2.P2.y
     && T1.P3.x == T2.P3.x && T1.P3.y == T2.P3.y) {
@@ -47,7 +47,7 @@ int compareTriangles(TRIANGLE T1, TRIANGLE T2) {
     }
 }
 
-TRIANGLE_HEAD del_triangle(TRIANGLE_HEAD TR_head, TRIANGLE T) {
+TRIANGLE_HEAD del_triangle(TRIANGLE_HEAD TR_head, TRIANGLE T) { // trouve le triangle en paramètre grâce a la fonctions precedentes et le supprime
     ELEMENT * e = TR_head.head;
     ELEMENT * prev_e = NULL;
 
@@ -73,7 +73,7 @@ int deter(POINT a, POINT b) { /* calcul du determinant pour savoir si on a bien 
     return a.x * b.y - b.x * a.y;
 }
 
-TRIANGLE in_triangle(TRIANGLE_HEAD TR_head, POINT p) {
+TRIANGLE in_triangle(TRIANGLE_HEAD TR_head, POINT p) { // Fonction qui trouve le triangle dans lequel est le point et le renvoie
     ELEMENT *e;
     e = TR_head.head;
 
@@ -103,10 +103,10 @@ TRIANGLE in_triangle(TRIANGLE_HEAD TR_head, POINT p) {
         }
         e = e->next;
     }
-    return TNull;
+    return TNull; // retourne un triangle aux points 0 pour dire qu'il y a eu un probleme
 }
 
-int PointInTriangle(TRIANGLE triangle, POINT p) {
+int PointInTriangle(TRIANGLE triangle, POINT p) { // Fonction alternative qui renvoie 1 si le point est dans le triangle mise en arguments
     POINT A = triangle.P1;
     POINT B = triangle.P2;
     POINT C = triangle.P3;

@@ -9,7 +9,7 @@
 #define CIRCLE_RAYON 10
 
 // le struct
-typedef struct bouton {
+typedef struct bouton { // structure de bouton pour stocker toute les informations visuel
     char *nom;
     int largeur;
     int hauteur;

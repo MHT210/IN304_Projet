@@ -4,12 +4,12 @@
 #include "uvsqgraphics_2.h"
 
 // Les types de structures : //
-typedef struct couples_points {
+typedef struct couples_points { // structure qui stock le point cliqué sur l'image de droite et le point sur l'image de gauche
     POINT G;
     POINT D;
 } COUPLES_POINTS;
 
-typedef struct LISTE_POINTS {
+typedef struct LISTE_POINTS { // structure de liste chainée pour garder tout les couples de points
     COUPLES_POINTS CP;
     struct LISTE_POINTS *suiv;
 } LISTE_POINTS;

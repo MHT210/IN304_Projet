@@ -90,6 +90,7 @@ int main() {
     TH_A = Get_Triangles(TH_A, Head_A, 1);
     print_triangles(TH);
 
+    // morphing d'image pour des valeurs d'alpha entre 0 et 1 par pas de 0.01 (100 fois)
     for (float alpha = 0.0f; alpha<=1.0f; alpha = alpha + 0.01f) {
         free_list(Head_I);
         Head_I = NULL;
@@ -100,6 +101,8 @@ int main() {
         if (TH.length != TH_D.length && TH.length != TH_A.length) {perror("Probleme dans la triangulation"); exit(2);}
         Images = morphing(Head_I, Images, TH, TH_D, TH_A, alpha, I, I2, I3);
     }
+
+    // création des fichiers ppm des images dans la liste IMAGE_INTER(les frames)
     int i = 0;
     while (Images) {
         char filename[256];
@@ -109,6 +112,7 @@ int main() {
         i++;
     }
 
+    // utilisation de system() qui permet d'executer une commande sur le terminal ici il s'agit de la commande qui prend les frames pour en faire une vidéo
     printf("Génération de la vidéo...\n");
     int result = system("ffmpeg -y -framerate 10 -i FRAMES/frame_%02d.ppm "
                     "-vf \"scale='trunc(iw/2)*2:trunc(ih/2)*2'\" "
@@ -131,6 +135,7 @@ int main() {
     //Fin du main
     wait_escape();
 
+    // Libération des structures de données a memoire dynamique
     free_list(Head_I);
     free_list_TH(TH.head);
 

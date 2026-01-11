@@ -10,7 +10,7 @@
 #include "stdlib.h"
 #include "math.h"
 
-typedef struct POINTS_INT {
+typedef struct POINTS_INT { // structure qui va stocker tout les points intermédiaires créer a partir des couples de points
     POINT P;
     struct POINTS_INT *suiv;
 } POINTS_INT;

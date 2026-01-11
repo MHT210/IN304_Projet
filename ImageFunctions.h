@@ -4,11 +4,11 @@
 #include "uvsqgraphics_2.h"
 
 // Les types de structures : //
-typedef struct pixel {
+typedef struct pixel { //structures qui contient les valeurs RGB d'un pixel
     int R, G, B;
 } PIXEL;
 
-typedef struct image {
+typedef struct image { // structure qui contient ttes les infos d'une image y compris tout les pixels de l'image(adaptés au fichier ppm)
     int hauteur;
     int largeur;
     int max_value_rgb;
@@ -16,7 +16,7 @@ typedef struct image {
     PIXEL **P;
 } IMAGE;
 
-typedef struct Image_Inter {
+typedef struct Image_Inter { // structure de liste chainée qui va contenir tout les images(frames) créer par la fonction morphing
     IMAGE image;
     struct Image_Inter * suiv;
 } IMAGE_INTER;

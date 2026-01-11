@@ -62,7 +62,7 @@ COUPLES_POINTS get_last_points(LISTE_POINTS * list) {
 	return temp->CP;
 }
 
-void print_list(LISTE_POINTS *list) {
+void print_list(LISTE_POINTS *list) { // Cette fonction parcoure toute la liste chainée pour affichier les valeurs des couples de points
 	int count = 0;
 	while (list) {
 		count += 1;

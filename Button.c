@@ -1,6 +1,6 @@
 #include "Button.h"
 
-void creer_bouton(BOUTON button)
+void creer_bouton(BOUTON button) // Créer le rectangle du bouton sur l'interface sdl
 {
     POINT p1 = { button.x - button.largeur/2, button.y - button.hauteur/2 };
     POINT p2 = { button.x + button.largeur/2, button.y + button.hauteur/2 };
@@ -19,8 +19,7 @@ void creer_bouton(BOUTON button)
     affiche_all();
 }
 
-// --- Détection du clic dans le bouton Stop ---
-int bouton_cliquer(POINT p, BOUTON button)
+int bouton_cliquer(POINT p, BOUTON button) // Renvoie 1 si le bouton mis en parametre est cliqué
 {
     if (p.x >= button.x - button.largeur/2 && p.x <= button.x + button.largeur/2 &&
         p.y >= button.y - button.hauteur/2 && p.y <= button.y + button.hauteur/2)

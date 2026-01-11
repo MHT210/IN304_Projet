@@ -19,7 +19,7 @@ POINT get_click_or_stop(BOUTON trianguler, BOUTON suppr, BOUTON quitter) {
     return p;
 }
 
-int check_clic_position(POINT p1, POINT p2, IMAGE I, IMAGE I2) {
+int check_clic_position(POINT p1, POINT p2, IMAGE I, IMAGE I2) { //Cette fonction sert a suivre sur quel image l'utilisateur a cliquer
     // Vérifiez si p1 dans I et p2 dans I2
     if (Is_In_Image(I, p1, HAUTEUR) && Is_In_Image(I2, p2, HAUTEUR))
         return 1;
@@ -31,13 +31,13 @@ int check_clic_position(POINT p1, POINT p2, IMAGE I, IMAGE I2) {
     return 0;
 }
 
-void draw_circles_of_couple(POINT p1, POINT p2) {
+void draw_circles_of_couple(POINT p1, POINT p2) { // simple fonction qui rajoute des cercle rouge a la position des points cliqués
     draw_circle(p1, CIRCLE_RAYON, RED);
     draw_circle(p2, CIRCLE_RAYON, RED);
 }
 
 LISTE_POINTS * Get_Pixel_Couple(LISTE_POINTS * Head, IMAGE I, IMAGE I2, BOUTON trianguler, BOUTON suppr, BOUTON quitter) {
-    int keepGoing = 1;
+    int keepGoing = 1; // Fonction qui attend le clique de l'user pour le traiter(cliquer soit sur un bouton soit sur une image pour former des points)
 
     while (keepGoing) {
         // Premier clic
@@ -91,7 +91,7 @@ LISTE_POINTS * Get_Pixel_Couple(LISTE_POINTS * Head, IMAGE I, IMAGE I2, BOUTON t
 }
 
 LISTE_POINTS * Init_With_Couples_of_Base_Points(LISTE_POINTS * Head, IMAGE I, IMAGE I2) {
-    COULEUR redColor = couleur_RGB(255,0,0);
+    COULEUR redColor = couleur_RGB(255,0,0); // Fonction qui rajoute les points de base des coins des images dans la structure de données adéquat
 
     POINT g1;
     POINT d1;
@@ -137,7 +137,7 @@ LISTE_POINTS * Init_With_Couples_of_Base_Points(LISTE_POINTS * Head, IMAGE I, IM
 }
 
 LISTE_POINTS * Create_Couples_of_Points(LISTE_POINTS * Head, IMAGE I, IMAGE I2, BOUTON trianguler, BOUTON suppr, BOUTON quitter) {
-    // initialiser avec les couples de base
+    // Fonctions qui regroupe les deux precedentes
     Head = Init_With_Couples_of_Base_Points(Head, I, I2);
 
     Head = Get_Pixel_Couple(Head, I, I2, trianguler, suppr, quitter);
@@ -164,7 +164,7 @@ void Save_Point_Couples(LISTE_POINTS * Head) {
 }
 
 void Read_Point_Couples(char *filename) {
-    FILE *F;
+    FILE *F; // lire le fichier des couples de points
     
     F = fopen(filename, "r");
     if (!F) {

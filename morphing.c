@@ -1,7 +1,7 @@
 #include "morphing.h"
 
 
-POINTS_INT * insert_last_i(POINTS_INT * list_I, int x, int y) {
+POINTS_INT * insert_last_i(POINTS_INT * list_I, int x, int y) { // Inserer un points intermediaires a la fin de la liste POINTS_INT
 	if (!list_I) {
 		POINTS_INT * last = malloc(sizeof(POINTS_INT));
 		if (!last) {fprintf(stderr, "pb malloc\n"); exit(12);}
@@ -15,7 +15,7 @@ POINTS_INT * insert_last_i(POINTS_INT * list_I, int x, int y) {
 	return list_I;
 }
 
-void free_list(POINTS_INT *head) {
+void free_list(POINTS_INT *head) { // Fonction qui libère la liste entière
     POINTS_INT *current = head;
     POINTS_INT *next;
     
@@ -26,7 +26,7 @@ void free_list(POINTS_INT *head) {
     }
 }
 
-POINTS_INT * getIntPoints(POINTS_INT * list_I, LISTE_POINTS * listD_G, float alpha) {
+POINTS_INT * getIntPoints(POINTS_INT * list_I, LISTE_POINTS * listD_G, float alpha) { // Fonction qui stock tout les points intermediaires dans la liste POINTS_INT
     LISTE_POINTS * temp = listD_G;
 
     while (temp) {
@@ -39,7 +39,7 @@ POINTS_INT * getIntPoints(POINTS_INT * list_I, LISTE_POINTS * listD_G, float alp
     return list_I;
 }
 
-void barycentricCoordinates(POINT A, POINT B, POINT C, POINT p, float *lambda, float *mu) {
+void barycentricCoordinates(POINT A, POINT B, POINT C, POINT p, float *lambda, float *mu) { // Fonction qui calcul les coordonnées barycentriques lambda et mu
     POINT AB = {B.x - A.x, B.y - A.y};
     POINT AC = {C.x - A.x, C.y - A.y};
     POINT AP = {p.x - A.x, p.y - A.y};
@@ -50,11 +50,12 @@ void barycentricCoordinates(POINT A, POINT B, POINT C, POINT p, float *lambda, f
     *mu = (AB.x * AP.y - AB.y * AP.x) / det;
 }
 
-int InImageMorph(IMAGE I, POINT p) {
+int InImageMorph(IMAGE I, POINT p) { // Fonction qui permet de vérifier si un point est bien dans son image
     return (p.x >= 0 && p.x < I.largeur && p.y >= 0 && p.y < I.hauteur);
 }
 
 IMAGE_INTER * morphing(POINTS_INT * Head_I, IMAGE_INTER * Images, TRIANGLE_HEAD TH_I, TRIANGLE_HEAD TH_D, TRIANGLE_HEAD TH_A, float alpha, IMAGE I, IMAGE I2, IMAGE I3) {
+    // Fonction qui créer l'image intermediaire en parcourant tout les pixels entre les points qui sont aux extremiter de l'image(à l'aide des triangles intermediaires deja créer grâce aux points intermediaires)
     int xInf = Head_I->P.x;
     int xSup = Head_I->suiv->P.x;
     int ySup = Head_I->suiv->suiv->P.y;
